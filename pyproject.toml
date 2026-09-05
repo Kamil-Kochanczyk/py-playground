@@ -1,0 +1,201 @@
+[project]
+name = "py-playground"
+version = "0.1.0"
+keywords = ["learning", "tutorial", "educational"]
+description = "Project created to learn various concepts and have fun with Python."
+readme = "README.md"
+authors = [
+    { name = "Kamil Kochanczyk", email = "kochanczykkamil05@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+]
+license = "MIT"
+license-files = ["LICENSE", "AUTHORS"]
+classifiers = ["Programming Language :: Python :: 3.12", "Private :: Do Not Upload"]
+
+[project.scripts]
+exp-track-cli = "py_playground.expense_tracker.main:main"
+enumfun-cli = "py_playground.other.enumfun:main"
+envvars-cli = "py_playground.other.envvars:main"
+nonlocal-cli = "py_playground.other.nonlocalexample:main"
+
+[project.gui-scripts]
+# make each main Python program available as a short command (just like above) but prevent the terminal pop-up on Windows
+exp-track-gui = "py_playground.expense_tracker.main:main"
+enumfun-gui = "py_playground.other.enumfun:main"
+envvars-gui = "py_playground.other.envvars:main"
+nonlocal-gui = "py_playground.other.nonlocalexample:main"
+
+[project.urls]
+Homepage = "https://google.com"
+Documentation = "https://google.com"
+Repository = "https://google.com"
+Issues = "https://google.com"
+Changelog = "https://google.com"
+
+[project.optional-dependencies]
+ds = [
+    "numpy>=2.5.2",
+    "pandas>=3.0.5",
+]
+plots = [
+    "matplotlib>=3.11.1",
+    "seaborn>=0.13.2",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.8,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+docs = [
+    "mkdocs>=1.6.1",
+]
+
+[tool.ruff]
+lint.extend-select = [
+    "E",    # Pycodestyle errors (style issues)
+    "W",    # Pycodestyle warnings (style issues)
+    "C90",  # McCabe – complexity metric for functions
+    "I",    # isort – import ordering checks
+    "N",    # PEP8 Naming – naming conventions
+    "D",    # Pydocstyle – docstring formatting
+    "UP",   # Pyupgrade – upgrades syntax to newer Python versions
+    "YTT",  # Flake8-2020 – checks for misuse of sys.version and sys.version_info
+    # "ANN",  # Flake8-annotations – enforces type annotation style
+    "ASYNC",# Flake8-async – checks async/await usage
+    "S",    # Flake8-bandit – security issues
+    "BLE",  # Flake8-blind-except – flags bare excepts
+    "FBT",  # Flake8-boolean-trap – potential pitfalls with booleans
+    "B",    # Flake8-bugbear – common bug patterns
+    "A",    # Flake8-builtins – misuse of Python built-in names
+    "COM",  # Flake8-commas – trailing/comma issues
+    # "CPY",  # Flake8-copyright – copyright header checks
+    "C4",   # Flake8-comprehensions – best practices in comprehensions
+    "DTZ",  # Flake8-datetimez – requires timezone-aware datetime objects
+    "T10",  # Flake8-debugger – debugger statements (e.g. pdb)
+    "DJ",   # Flake8-django – Django-specific conventions
+    "EM",   # Flake8-errmsg – error message style
+    "EXE",  # Flake8-executable – executable file checks
+    "FA",   # Flake8-future-annotations – future import for annotations
+    "ISC",  # Flake8-implicit-str-concat – warns on implicit string concatenation
+    "ICN",  # Flake8-import-conventions – enforces conventional import aliases
+    "LOG",  # Flake8-logging – proper logging usage
+    "G",    # Flake8-logging-format – logging format string issues
+    "INP",  # Flake8-no-pep420 – requires __init__.py files (no implicit namespace packages)
+    "PIE",  # Flake8-pie – Python improvement suggestions
+    # "T20",  # Flake8-print – disallows print statements
+    "PYI",  # Flake8-pyi – checks for type stub (.pyi) consistency
+    "PT",   # Flake8-pytest-style – pytest best practices
+    "Q",    # Flake8-quotes – enforces quote style consistency
+    "RSE",  # Flake8-raise – proper raise statement usage
+    "RET",  # Flake8-return – return statement issues
+    "SLF",  # Flake8-self – flags instance methods that don't use self
+    "SLOT", # Flake8-slots – suggests use of __slots__ where appropriate
+    "SIM",  # Flake8-simplify – code simplification hints
+    "TID",  # Flake8-tidy-imports – enforces specific import styles (e.g., no relative imports)
+    "TC",   # Flake8-type-checking – proper import of typing in type checks
+    "INT",  # Flake8-gettext – checks for proper internationalization usage
+    "ARG",  # Flake8-unused-arguments – flags unused function arguments
+    "PTH",  # Flake8-use-pathlib – encourages pathlib over os.path
+    "TD",   # Flake8-todos – flags TODO comments
+    "FIX",  # Flake8-fixme – flags FIXME comments
+    # "ERA",  # Eradicate – detects commented-out code (potentially dangerous)
+    "PD",   # Pandas-vet – checks pandas-specific code practices
+    "PGH",  # Pygrep-hooks – custom grep hooks for linting
+    "PL",   # Pylint – integration with Pylint conventions
+    "TRY",  # Tryceratops – try/except usage suggestions
+    "FLY",  # Flynt – f-string conversion suggestions
+    "NPY",  # NumPy-specific rules – ensures NumPy coding standards
+    "FAST", # FastAPI – FastAPI-specific linting rules
+    "AIR",  # Airflow – Airflow-specific linting rules
+    "PERF", # Perflint – performance-related checks
+    "FURB", # Refurb – rules for code refurbishment
+    # "DOC",  # Pydoclint – docstring linting and consistency
+    "RUF",  # Ruff-specific rules – additional Ruff checks
+]
+lint.ignore = [
+    "INP001",  # Flake8-no-pep420 (package __init__ missing)
+    "E501",  # Pycodestyle - line too long
+    "D1",    # Pydocstyle - missing docstring in public module, class, or function
+    "FBT003", # Flake8-boolean-trap - boolean position value in function call
+    "D203",  # Pydocstyle - one blank line required before class docstring
+    "D212",  # Pydocstyle - summary line should be immediately after the opening quotes.
+    "D400",  # Pydocstyle - First line should end with a period.
+    "D401",  # Pydocstyle - Checks for docstring first lines that are not in an imperative mood.
+    "D415",  # Pydocstyle - First line should end with a period, question mark, or exclamation point
+    "S311",  # Flake8-bandit - Standard pseudo-random generators are not suitable for security/cryptographic purposes
+    "PERF401", # Perflint - Checks for for loops that can be replaced by a list comprehension.
+    "RET504", # Flake8-return - Checks for variable assignments that immediately precede a return of the assigned variable.
+    "FA102", # Flake8-future-annotations - Missing `from __future__ import annotations`, but uses PEP 604 union
+    "TRY003", # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
+    "EM101", # Flake8-errmsg - Checks for the use of string literals in exception constructors.
+    "TC002", # Flake8-type-checking - Checks for usage of typing imports outside of TYPE_CHECKING blocks.
+    "TC003", # Flake8-type-checking - Checks for imports from typing that are not within TYPE_CHECKING blocks.
+    "COM812", # Flake8-commas - Missing trailing comma. Conflicts with the formatter, which manages trailing commas itself (magic trailing comma is unaffected); Ruff recommends disabling.
+    "ISC001", # Flake8-implicit-str-concat - Single-line implicit string concatenation. Conflicts with the formatter; Ruff recommends disabling alongside COM812.
+]
+
+[tool.ruff.lint.per-file-ignores]
+# IGNORE RULES FOR TESTS
+# S101    # Flake8-bandit – asserts are standard in pytest
+# S105    # Flake8-bandit – possible hardcoded password
+# S106    # Flake8-bandit – possible hardcoded password in function argument
+# S107    # Flake8-bandit – hardcoded passwords in function defaults (test helpers need defaults)
+# PLR2004 # Pylint – magic values (e.g. 404, 200) are common in tests
+# SLF001  # Flake8-self – private member access needed to test internal state
+# D       # Pydocstyle – docstrings are often redundant in verbose test names
+# ANN     # Flake8-annotations – type annotations are unnecessary overhead for tests
+# ARG001  # Flake8-unused-arguments – pytest fixtures ensure state exists even when not directly used
+# PLC0415 # Pylint – local imports in tests are valid for test isolation and self-contained tests
+# EM102   # Flake8-errmsg – f-string exceptions in test helpers are acceptable for debugging
+# INP001  # Flake8-no-pep420 – a tests/ dir intentionally has no __init__.py (standard pytest layout)
+"test_*.py" = ["S101", "S105", "S106", "S107", "PLR2004", "SLF001", "D", "ANN", "ARG001", "PLC0415", "EM102", "INP001"]
+"*_test.py" = ["S101", "S105", "S106", "S107", "PLR2004", "SLF001", "D", "ANN", "ARG001", "PLC0415", "EM102", "INP001"]
+"conftest.py" = ["S101", "S105", "S106", "S107", "PLR2004", "SLF001", "D", "ANN", "ARG001", "PLC0415", "EM102", "INP001"]
+
+[tool.pytest]
+# register custom marks to prevent warnings
+# everything after ":" is an optional description of the marker
+markers = [
+    "integration: marks the integration test", 
+    "e2e: marks the e2e test"
+]
+
+[tool.poe.tasks]
+# very simple tasks
+sync-all = "uv sync --all-groups"
+lock-upgrade = "uv lock --upgrade"
+fix-diff = "ruff check . --fix --diff"
+format-diff = "ruff format . --diff"
+
+[tool.poe.tasks.test]
+# CLI task - single CLI command, extra arguments automatically forwarded to the command
+help = "Run tests using pytest"
+cmd = "pytest"
+
+[tool.poe.tasks.clean]
+# shell task - multi-line command like in Linux shell
+help = "Clean generated cache files and other unnecesarry artifacts"
+shell = """
+rm -rf .pytest_cache
+rm -rf .ruff_cache
+rm -rf .mypy_cache
+rm -rf build dist *.egg-info
+find . -type d -name "__pycache__" -exec rm -rf {} +
+"""
+
+[tool.poe.tasks.update]
+# sequence task - multiple tasks running sequentially in ordering
+help = "Update lock file and then update all dependency groups (but skip extra/optional ones)"
+sequence = ["lock-upgrade", "sync-all"]
+
+[tool.poe.tasks.ruffdiff]
+help = "Check what would ruff do if you told it to lint-fix and then format"
+sequence = ["fix-diff", "format-diff"]

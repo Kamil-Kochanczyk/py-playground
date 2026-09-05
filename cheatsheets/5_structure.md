@@ -1,0 +1,16 @@
+- src-layout prevents the package from sitting at the root of the project which helps against some potential erroneus imports when performing tests
+- generally, a directory where there is `__init__.py` inside is the root directory of a package, and the name of this package is the name of its root directory
+- **feature-based design** (or **domain-based design**):
+  - put everything related to a specific application feature into one directory
+  - for example we can have features such as `users`, `products`, `orders`, `login`, `find_recommendations`, etc.
+  - then all code a feature needs is inside its directory (+ maybe some common utils, configs, etc., from other directories)
+- **domain + infrastructure + application + presentation**:
+  - every layer is separated
+  - domain is the actual problem we're solving, e.g. a concept of an expense
+  - infrastructure is the technology surrounding the domain, e.g. which database format to use to store the information about expenses
+  - application is all about performing use cases, e.g. managing expenses (add expense, calculate total, etc.)
+  - presentation is how the program interacts with the outer world, e.g. CLI or API or frontend
+  - simpler version: **domain + services + storage**
+- avoid `utils.py` files (and other similar ones) as they are too vague (not very informational) and a sign of poor design
+- circular imports are a sign of bad design and bad dependency directions, dependencies should flow in a natural, predictable direction
+- directories aren't the architecture - dependencies are

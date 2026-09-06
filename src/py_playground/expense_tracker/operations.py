@@ -1,10 +1,10 @@
 from decimal import Decimal
 from typing import Literal
 
-from py_playground.expense_tracker.expense import Expense
+from py_playground.expense_tracker.expense import Category, Expense, ExpenseID
 
 
-def generate_next_id(expenses: list[Expense]) -> int:
+def generate_next_id(expenses: list[Expense]) -> ExpenseID:
     if len(expenses) == 0:
         return 0
     return max(expense.id for expense in expenses) + 1
@@ -21,7 +21,7 @@ def add_expense(expenses: list[Expense], expense: Expense) -> None:
     expenses.append(expense)
 
 
-def delete_expense(expenses: list[Expense], id_to_delete: int) -> bool:
+def delete_expense(expenses: list[Expense], id_to_delete: ExpenseID) -> bool:
     for expense in expenses:
         if expense.id == id_to_delete:
             expenses.remove(expense)
@@ -29,14 +29,14 @@ def delete_expense(expenses: list[Expense], id_to_delete: int) -> bool:
     return False
 
 
-def get_expense(expenses: list[Expense], id_to_get: int) -> Expense | None:
+def get_expense(expenses: list[Expense], id_to_get: ExpenseID) -> Expense | None:
     for expense in expenses:
         if expense.id == id_to_get:
             return expense
     return None
 
 
-def filter_by_category(expenses: list[Expense], category: str) -> list[Expense]:
+def filter_by_category(expenses: list[Expense], category: Category) -> list[Expense]:
     return [expense for expense in expenses if expense.category == category]
 
 
@@ -45,6 +45,6 @@ def calculate_total(expenses: list[Expense]) -> Decimal | Literal[0]:
 
 
 def calculate_category_total(
-    expenses: list[Expense], category: str
+    expenses: list[Expense], category: Category
 ) -> Decimal | Literal[0]:
     return calculate_total(filter_by_category(expenses, category))

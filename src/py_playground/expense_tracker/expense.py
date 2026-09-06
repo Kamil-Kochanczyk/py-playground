@@ -2,16 +2,23 @@ from __future__ import annotations
 
 import datetime
 import decimal
-from typing import TypedDict
+from typing import NewType, NotRequired, TypedDict
+
+type ExpenseID = int  # type alias, i.e. giving another name for readability purposes
+
+# new types, similar to type aliases
+# used to differentiate between conceptually different values of the same type
+Category = NewType("Category", str)
+Description = NewType("Description", str)
 
 
 class Expense:
     def __init__(
         self,
-        expense_id: int,
+        expense_id: ExpenseID,
         amount: decimal.Decimal,
-        category: str,
-        description: str,
+        category: Category,
+        description: Description,
         date: datetime.datetime,
     ) -> None:
         self.id = expense_id
@@ -20,7 +27,9 @@ class Expense:
         self.description = description
         self.date = date
 
-    def _members(self) -> tuple[int, decimal.Decimal, str, str, datetime.datetime]:
+    def _members(
+        self,
+    ) -> tuple[ExpenseID, decimal.Decimal, Category, Description, datetime.datetime]:
         return (self.id, self.amount, self.category, self.description, self.date)
 
     def __eq__(self, other: object) -> bool:
@@ -35,10 +44,10 @@ class Expense:
     @classmethod
     def dummy_expense(
         cls,
-        expense_id: int = 0,
+        expense_id: ExpenseID = 0,
         amount: decimal.Decimal = decimal.Decimal("0.0"),
-        category: str = "",
-        description: str = "",
+        category: Category = Category(""),
+        description: Description = Description(""),
         date: datetime.datetime | None = None,
     ) -> Expense:
         if date is None:
@@ -54,8 +63,9 @@ class Expense:
 
 
 class ExpenseDict(TypedDict):
-    id: int
+    id: ExpenseID
     amount: str
-    category: str
-    description: str
+    category: Category
+    description: Description
     date: str
+    receiver: NotRequired[str]

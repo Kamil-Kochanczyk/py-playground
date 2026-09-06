@@ -3,7 +3,7 @@ import decimal
 from pathlib import Path
 
 from py_playground.expense_tracker import operations, storage
-from py_playground.expense_tracker.expense import Expense
+from py_playground.expense_tracker.expense import Category, Description, Expense
 
 BASE_DIR = Path(__file__).parent  # __file__ is the path to the current file (main.py)
 FILENAME = BASE_DIR / "data" / "expenses.json"  # "/" is an overloaded operator
@@ -13,8 +13,8 @@ def handle_add_expense(expenses: list[Expense]) -> None:
     try:
         new_id = operations.generate_next_id(expenses)
         new_amount = decimal.Decimal(input("Amount: "))
-        new_category = input("Category: ")
-        new_description = input("Description: ")
+        new_category = Category(input("Category: "))
+        new_description = Description(input("Description: "))
         year, month, day = input("Date (yyyy/mm/dd): ").split("/")
         new_date = datetime.datetime(
             int(year), int(month), int(day), tzinfo=datetime.UTC
@@ -32,7 +32,7 @@ def handle_print_expenses(expenses: list[Expense]) -> None:
 
 
 def handle_filter_by_category(expenses: list[Expense]) -> None:
-    category = input("Category to filter expenses by: ")
+    category = Category(input("Category to filter expenses by: "))
     filtered_by_category = operations.filter_by_category(expenses, category)
     operations.print_expenses(filtered_by_category)
 
@@ -43,14 +43,16 @@ def handle_calculate_total(expenses: list[Expense]) -> None:
 
 
 def handle_calculate_category_total(expenses: list[Expense]) -> None:
-    category = input("Category to filter expenses by: ")
+    category = Category(input("Category to filter expenses by: "))
     total = operations.calculate_category_total(expenses, category)
     print("Category total: " + str(total))
 
 
 def handle_delete_expense(expenses: list[Expense]) -> None:
     try:
-        id_to_delete = int(input("ID of expense: "))
+        id_to_delete = int(
+            input("ID of expense: ")
+        )  # type alias not callable so we must use the raw int
         success = operations.delete_expense(expenses, id_to_delete)
         print("Deleted!" if success else "Delete operation unsuccessful")
     except ValueError:

@@ -20,6 +20,7 @@ classifiers = ["Programming Language :: Python :: 3.12", "Private :: Do Not Uplo
 exp-track-cli = "py_playground.expense_tracker.main:main"
 enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
+gens-cli = "py_playground.other.generics:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
 
 [project.gui-scripts]
@@ -27,6 +28,7 @@ nonlocal-cli = "py_playground.other.nonlocalexample:main"
 exp-track-gui = "py_playground.expense_tracker.main:main"
 enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
+gens-gui = "py_playground.other.generics:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
 
 [project.urls]
@@ -62,6 +64,7 @@ docs = [
 ]
 
 [tool.ruff]
+extend-exclude = ["cheatsheets"]
 lint.extend-select = [
     "E",    # Pycodestyle errors (style issues)
     "W",    # Pycodestyle warnings (style issues)
@@ -182,7 +185,7 @@ format-diff = "ruff format . --diff"
 # CLI task - with custom option for defining a path
 cmd = "mypy ${path}"
 args = [
-    { name="path", options=["--path", "-p"], default="src" }
+    { name="path", options=["--path", "-p"], default="." }
 ]
 
 [tool.poe.tasks.test]

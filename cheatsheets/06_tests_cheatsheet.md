@@ -60,10 +60,10 @@ tests/
 
 # Stubs and mocks
 
-The general idea is that sometimes a test depends on external services (e.g. API, database, network latency, etc.) which are unpredictable and can cause the tests to fail even though everything is correct. Instead of using the real, external services, **fake**/**dummy** objects are used to replace them and give the tests everything they need. We can say that those replacement object "mock" or "pretend to be" the real objects and hence the general term "mocking". The more expensive, external, nondeterministic, or uncontrollable the dependency is, the stronger the case for mocking.
+The general idea is that sometimes a test depends on external services (e.g. API, database, network latency, etc.) which are unpredictable and can cause the tests to fail even though everything is correct in our code. Instead of using the real, external services, **fake**/**dummy** objects are used to replace them and give the tests everything they need. We can say that those replacement objects "mock" or "pretend to be" the real objects and hence the general term "mocking". The more expensive, external, nondeterministic, or uncontrollable the dependency is, the stronger the case for mocking.
 
 - **stub** - simple dummy object that provides deterministic, constant, simplified data to the test, e.g. `return 200` instead of `return http.code`
-- **mock** - dummy object that focuses on interactions instead of data, it can for example record what functions were called, with what arguments, etc., to verify the behavior is correct
+- **mock** - dummy object that focuses on interactions instead of data, it can for example record what functions were called, with what arguments, etc., to verify that the behavior is correct
 - **Mock** - class from Python's standard library, `from unittest.mock import Mock`, creates a dummy object which can pretend to be anything, can also record mocking data, you can for example assign arbitrarily named functions to this object and specify what they should return, in general it's preferred to use **MagicMock** instead of **Mock**
 - **MagicMock** - subclass of **Mock**, has predefined behaviour for dunder (magic) methods, like `len()`, `mock[0]`, `for item in mock`, etc.
 - **patch** - context manager, it temporarily replaces an object with another object, typically it replaces a real function with a mocking function, it can automatically undo the patch once it exits its local scope, it can also be expressed as a function/class decorator, works closely with **Mock**
@@ -72,9 +72,9 @@ The general idea is that sometimes a test depends on external services (e.g. API
   - moreover, each module has its own local namespace scope
   - for example, a file `file.py` can do `import database; database.get_user()` and in this case `get_user()` is stored using its own reference `file.database.get_user`
   - similarly, `file.py` can do `from database import get_user; get_user()` and in this case `get_user()` is stored using its own reference `file.get_user`
-  - this means that we can differentiate between the true reference to the `get_user()` function (place where the function `get_user()` is defined), i.e. that in the `database.py` module, from the reference/place where `get_user()` function is accessed/used, i.e. that in the `file.py` module
+  - this means that we can differentiate between the true reference to the `get_user()` function (place where the function `get_user()` is defined), i.e. that in the `database.py` module, from the reference/place where the `get_user()` function is accessed/used, i.e. that in the `file.py` module
   - the golden rule is to patch where the function is used, not where the function is defined
-  - in this example this means that patch should be done using `file.database.get_user` or `file.get_user`, not on `database.get_user`
+  - in the examples above this means that the patch should be done using `file.database.get_user` or `file.get_user`, not using `database.get_user`
   - this is because doing a patch on the true, original reference to the function can have unexpected consequences
   - TLDR: patch where it is used, not where it is defined, because this is how Python works
-- **monkeypatch** - similar to **patch** but it is a built in pytest feature, does not work as context manager but with `set_` methods, it temporarily replaces values during tests
+- **monkeypatch** - similar to **patch** but it is a built-in pytest feature, does not work as context manager but with `set_` methods, it temporarily replaces values during tests

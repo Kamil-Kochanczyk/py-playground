@@ -1,10 +1,11 @@
 import argparse
+from collections.abc import Callable
 
 
-def make_counter(start=0):
+def make_counter(start: int = 0) -> Callable[[], int]:
     counter = start
 
-    def inner():
+    def inner() -> int:
         nonlocal counter
         counter += 1
         return counter

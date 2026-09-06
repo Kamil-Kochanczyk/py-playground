@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Literal
 
 from py_playground.expense_tracker.expense import Expense
 
@@ -39,9 +40,11 @@ def filter_by_category(expenses: list[Expense], category: str) -> list[Expense]:
     return [expense for expense in expenses if expense.category == category]
 
 
-def calculate_total(expenses: list[Expense]) -> Decimal:
+def calculate_total(expenses: list[Expense]) -> Decimal | Literal[0]:
     return sum(expense.amount for expense in expenses)
 
 
-def calculate_category_total(expenses: list[Expense], category: str) -> Decimal:
+def calculate_category_total(
+    expenses: list[Expense], category: str
+) -> Decimal | Literal[0]:
     return calculate_total(filter_by_category(expenses, category))

@@ -80,7 +80,7 @@ def test_main_saves_when_user_exits(tmp_expenses_json, monkeypatch):
     assert "Temp" in str(main.FILENAME)
 
     # such mocking wouldn't be useful in an integration test
-    # an integration test is, after all, suppossed to test the interaction between real components
+    # an integration test is, after all, suppossed to test the interaction between real components, not mocked ones
 
 
 # repeat the same test but this time with patch instead of monkeypatch

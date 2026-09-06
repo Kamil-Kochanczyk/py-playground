@@ -3,10 +3,10 @@ import decimal
 import json
 from pathlib import Path
 
-from py_playground.expense_tracker.expense import Expense
+from py_playground.expense_tracker.expense import Expense, ExpenseDict
 
 
-def expense_to_dict(expense: Expense) -> dict:
+def expense_to_dict(expense: Expense) -> ExpenseDict:
     return {
         "id": expense.id,
         "amount": str(expense.amount),
@@ -16,7 +16,7 @@ def expense_to_dict(expense: Expense) -> dict:
     }
 
 
-def expense_from_dict(data: dict) -> Expense:
+def expense_from_dict(data: ExpenseDict) -> Expense:
     return Expense(
         data["id"],
         decimal.Decimal(data["amount"]),
@@ -26,12 +26,12 @@ def expense_from_dict(data: dict) -> Expense:
     )
 
 
-def save_expenses(expenses: list[Expense], filename: str) -> None:
+def save_expenses(expenses: list[Expense], filename: Path) -> None:
     with Path.open(filename, "w") as f:
         json.dump([expense_to_dict(expense) for expense in expenses], f, indent=4)
 
 
-def load_expenses(filename: str) -> list[Expense]:
+def load_expenses(filename: Path) -> list[Expense]:
     try:
         with Path.open(filename, "r") as f:
             return [expense_from_dict(data) for data in json.load(f)]

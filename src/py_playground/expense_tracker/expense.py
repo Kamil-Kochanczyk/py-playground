@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import datetime
 import decimal
+from typing import TypedDict
 
 
 class Expense:
@@ -17,10 +20,10 @@ class Expense:
         self.description = description
         self.date = date
 
-    def _members(self):
+    def _members(self) -> tuple[int, decimal.Decimal, str, str, datetime.datetime]:
         return (self.id, self.amount, self.category, self.description, self.date)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         # __hash__ implicitly set to None because we don't define it
         # we don't define __hash__ because Expense is mutable
         # comparing types like below restrictive
@@ -37,7 +40,7 @@ class Expense:
         category: str = "",
         description: str = "",
         date: datetime.datetime | None = None,
-    ):
+    ) -> Expense:
         if date is None:
             date = datetime.datetime.min.replace(tzinfo=datetime.UTC)
 
@@ -48,3 +51,11 @@ class Expense:
             description,
             date,
         )
+
+
+class ExpenseDict(TypedDict):
+    id: int
+    amount: str
+    category: str
+    description: str
+    date: str

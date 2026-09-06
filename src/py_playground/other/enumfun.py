@@ -44,7 +44,7 @@ def main() -> None:
     print(current_status is Status.COMPLETED)
     print(current_status == Status.COMPLETED)
     print()
-    print(f"{Status.PENDING == 1}; {HttpCode.OK == 200}; {Role.ADMIN == 'admin'}")
+    print(f"{Status.PENDING == 1}; {HttpCode.OK == 200}; {Role.ADMIN == 'admin'}")  # type: ignore[]  # intended comparison
     print(Role.ADMIN.prefix_upper())
     print()
     user_permissions = Permission.READ | Permission.WRITE

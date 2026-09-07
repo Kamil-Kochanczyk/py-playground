@@ -20,9 +20,7 @@ def main() -> None:
 
     parser.add_argument("start", type=int, help="Initial counter value")
 
-    parser.add_argument(
-        "count", type=int, help="How many times to increment the counter"
-    )
+    parser.add_argument("count", type=int, help="How many times to increment the counter")
 
     args = parser.parse_args()
 

@@ -65,10 +65,7 @@ def test_get_expense(id_to_get, expected_res_idx, example_expenses):
     if expected_res_idx is None:
         assert operations.get_expense(example_expenses, id_to_get) is None
     else:
-        assert (
-            operations.get_expense(example_expenses, id_to_get)
-            == example_expenses[expected_res_idx]
-        )
+        assert operations.get_expense(example_expenses, id_to_get) == example_expenses[expected_res_idx]
 
 
 @pytest.mark.parametrize(
@@ -135,17 +132,12 @@ def test_calculate_total(existing_amounts, expected_total, expense_factory_amoun
         "category exists entertainment",
     ],
 )
-def test_calculate_category_total(
-    category, expected_total, example_expenses, example_food_expenses
-):
-    assert (
-        operations.calculate_category_total(example_expenses, category)
-        == expected_total
-    )
+def test_calculate_category_total(category, expected_total, example_expenses, example_food_expenses):
+    assert operations.calculate_category_total(example_expenses, category) == expected_total
     if category == "food":
-        assert operations.calculate_category_total(
-            example_expenses, category
-        ) == operations.calculate_total(example_food_expenses)
+        assert operations.calculate_category_total(example_expenses, category) == operations.calculate_total(
+            example_food_expenses
+        )
 
 
 if __name__ == "__main__":

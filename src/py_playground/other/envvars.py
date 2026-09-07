@@ -5,13 +5,9 @@ from dotenv import load_dotenv
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Loads either true environment variables or their examples."
-    )
+    parser = argparse.ArgumentParser(description="Loads either true environment variables or their examples.")
 
-    parser.add_argument(
-        "--example", action="store_true", help="Load .env.example instead of .env"
-    )
+    parser.add_argument("--example", action="store_true", help="Load .env.example instead of .env")
 
     args = parser.parse_args()
 

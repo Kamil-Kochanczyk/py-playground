@@ -62,20 +62,14 @@ def test_main_saves_when_user_exits(tmp_expenses_json, monkeypatch):
     dummy_obj_mocking_real_save_function = dummy_obj_mocking_storage_obj.save_expenses
 
     # stub - replace real load/save functions with their fake counterparts to record how they are invoked
-    monkeypatch.setattr(
-        main.storage, "load_expenses", dummy_obj_mocking_real_load_function
-    )
-    monkeypatch.setattr(
-        main.storage, "save_expenses", dummy_obj_mocking_real_save_function
-    )
+    monkeypatch.setattr(main.storage, "load_expenses", dummy_obj_mocking_real_load_function)
+    monkeypatch.setattr(main.storage, "save_expenses", dummy_obj_mocking_real_save_function)
 
     main.main()
 
     # check if the load/save functions were invoked properly
     dummy_obj_mocking_real_load_function.assert_called_once_with(main.FILENAME)
-    dummy_obj_mocking_real_save_function.assert_called_once_with(
-        fake_expenses, main.FILENAME
-    )
+    dummy_obj_mocking_real_save_function.assert_called_once_with(fake_expenses, main.FILENAME)
 
     assert "Temp" in str(main.FILENAME)
 

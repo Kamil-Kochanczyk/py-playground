@@ -16,12 +16,8 @@ def handle_add_expense(expenses: list[Expense]) -> None:
         new_category = Category(input("Category: "))
         new_description = Description(input("Description: "))
         year, month, day = input("Date (yyyy/mm/dd): ").split("/")
-        new_date = datetime.datetime(
-            int(year), int(month), int(day), tzinfo=datetime.UTC
-        )
-        new_expense = Expense(
-            new_id, new_amount, new_category, new_description, new_date
-        )
+        new_date = datetime.datetime(int(year), int(month), int(day), tzinfo=datetime.UTC)
+        new_expense = Expense(new_id, new_amount, new_category, new_description, new_date)
         operations.add_expense(expenses, new_expense)
     except ValueError:
         print("Invalid input")
@@ -50,9 +46,7 @@ def handle_calculate_category_total(expenses: list[Expense]) -> None:
 
 def handle_delete_expense(expenses: list[Expense]) -> None:
     try:
-        id_to_delete = int(
-            input("ID of expense: ")
-        )  # type alias not callable so we must use the raw int
+        id_to_delete = int(input("ID of expense: "))  # type alias not callable so we must use the raw int
         success = operations.delete_expense(expenses, id_to_delete)
         print("Deleted!" if success else "Delete operation unsuccessful")
     except ValueError:

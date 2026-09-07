@@ -226,7 +226,7 @@ from collections.abc import Mapping, MutableMapping, Sequence, Iterable
 # or 'from typing import ...' (required in Python 3.8)
 
 # Use Iterable for generic iterables (anything usable in "for"),
-# and Sequence where a sequence (supporting "len" and "__getitem__") is
+# and Sequence where a sequence (supporting "__len__" and "__getitem__") is
 # required
 
 def f(ints: Iterable[int]) -> list[str]:
@@ -311,21 +311,26 @@ result_user = fetch_user(42)    # Type checker knows result_user is a 'str'
 
 # Notes
 
-- static type checking if just for more accurate workflow and for making the code more understandable and manageable, it has no effect on the runtime, e.g. errors given by mypy do not prevent from running the script, it also cannot ensure that the data coming from external sources is in the correct form (this is the task of runtime validation, not static type checking)
+- **MyPy** is a static type checker
+- static type checking if just for more accurate workflow and for making the code more understandable and manageable, it has no effect on the runtime behaviour, e.g. errors given by mypy do not prevent from running the script, it also cannot ensure that the data coming from external sources is in the correct form (this is the task of runtime validation, not static type checking)
 - `...` is called the **Ellipsis** and it's used in:
   - numpy, indicating the full slice `[:]` for all the dimensions in the gap it is placed, so for a 3d array, `a[..., 0]` is the same as `a[:, :, 0]` and for 4d `a[:, :, :, 0]`, similarly, `a[0, ..., 0]` is `a[0, :, :, 0]` (with however many colons in the middle make up the full number of dimensions in the array)
   - the same situations as the `pass` keyword
   - typing, where it specifies a callable that returns something but has no known param signature (e.g. `Callable[..., int]`) or a tuple of variable size (e.g. `tuple[int, ...]`)
 - `object` is the base class of Python, anything in Python can be treated as `object`, `object` can be checked by a type checker, e.g. every checker will be satisfied with `obj: object; print(obj)` because every object can be printed, but no one will be satisfied with `obj: object; obj.foo()` because not every Python object has a method `foo()` defined
-- `Any` is not the same as `object`, it is not checked by the type checker (when it sees `Any`, it assumes that it can be anything), it is preferred to use `object` when you do not know what what type you are expecting or when you do not care
-- a function param list can be broken into three distinct zones
+- `Any` is not the same as `object`, it is not checked by the type checker (when it sees `Any`, it assumes that it can be anything), it is preferred to use `object` when you do not know what type you are expecting or when you do not care
+- function's param list can be broken into three distinct zones
   - `def example(positional_only, /, standard, *, keyword_only):`
   - everything before `/` must be passed as a positional argument (e.g., `3`), you cannot use its name (e.g., `x=3`)
   - everything after `*` must be passed as a keyword argument (e.g., `y=5`), you cannot pass it by position alone (e.g., `5`)
   - anything between `/` and `*` can be passed either way
-  - if you have a class variable (variable defined inside a class, not inside one of the methods in the class), this variable is shared across all instances of the class, but when you try to access it through an instance (e.g. `instance_name.variable_name` instead of `ClassName.variable_name`), this instance gets its own version of the accessed variable which shadows the original class variable and is a completely independent variable from now on
+- if you have a class variable (variable defined inside a class, not inside one of the methods in the class), this variable is shared across all instances of the class, but when you try to access it through an instance (e.g. `instance_name.variable_name` instead of `ClassName.variable_name`), this instance gets its own version of the accessed variable which shadows the original class variable and is a completely independent variable from now on
+- things get more messy when you use type annotations, it seems that when you add a type annotation to a variable defined inside class body, Python actually does not see it as a class variable and does not create any variable whatsoever, instead such annotated variable is simply an information to a type checker about the type this variable should have when attached to `self` later in the code (to actually annotate a class variable you have to use `ClassVar` instead)
 - **duck typing** is the philosophy of Python, it means you don't care what class the object belongs to or what parent class it inherits from, you simply assume the object can perform the operation and try to call it, e.g. Python does not care if in `obj.fly()` the `obj` has the right type, the only thing it cares about is if the `obj` has the `fly()` method
 - `Iterable` is an object wich can be iterated in the `for` loop, it is defined by `__iter__` or `__getitem__` method
-- `Sequence` is an object which has elements assigned to positions (indices, starting from `0`), it is defined by `__len__` and `__getitem` methods, supports the following operations: `seq[0]`, `seq[0:1:2]`, `sth in seq`, `len(seq)`, `seq.count()`, `for item in seq`
-- sometimes third-party libraries don't have enough type information to satisfy type checkers, so for such libraries people often create their separate versions which have no runtime code at all but only the information about the types used inside them, we call them **stub files**
+- `Sequence` is an object which has elements assigned to positions (indices, starting from `0`), it is defined by `__len__` and `__getitem__` methods, supports the following operations: `seq[0]`, `seq[0:1:2]`, `sth in seq`, `len(seq)`, `seq.count()`, `for item in seq`
+- sometimes third-party libraries don't have enough type information to satisfy type checkers, for such libraries people often create their separate versions which contain no runtime code whatsoever but only the information about the types, we call such files **stub files**
 - **stub files** in Python (`.pyi` files) contain type hint information for Python modules without any operational runtime code, they allow type checkers like mypy to perform static type analysis on dynamically written Python (they can also be used for modules written in C/C++), a typical structure of a `.pyi` file directly mirrors its `.py` counterpart but replaces the actual implementations with `...` (**Ellipsis**)
+- **Pydantic** is a runtime data validation library, it is useful when you expect the data to have a particular structure but you have no guarante that it will satisfy this structure because it e.g. comes from an external, unpredictable source that does not guarantee data correctness, etc.
+- **Pydantic** lets you describe the structure of your data using Python types and then validate data against that structure, it doesn't merely check types, by default it can also parse/coerce compatible input into the declared types unless the input is completely incompatible with the declared types
+- you can use **Pydantic** to check if your data is valid, to transform data into the shapes you need, and then serialize the results so they can be moved on to other applications

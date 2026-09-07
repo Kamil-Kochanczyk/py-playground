@@ -44,7 +44,5 @@ def calculate_total(expenses: list[Expense]) -> Decimal | Literal[0]:
     return sum(expense.amount for expense in expenses)
 
 
-def calculate_category_total(
-    expenses: list[Expense], category: Category
-) -> Decimal | Literal[0]:
+def calculate_category_total(expenses: list[Expense], category: Category) -> Decimal | Literal[0]:
     return calculate_total(filter_by_category(expenses, category))

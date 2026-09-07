@@ -9,7 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "pydantic>=2.13.5",
+    "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
 ]
 license = "MIT"
@@ -22,6 +22,7 @@ enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
 gens-cli = "py_playground.other.generics:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
+runval-cli = "py_playground.other.runtimevalidation:main"
 
 [project.gui-scripts]
 # make each main Python program available as a short command (just like above) but prevent the terminal pop-up on Windows
@@ -30,6 +31,7 @@ enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
 gens-gui = "py_playground.other.generics:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
+runval-gui = "py_playground.other.runtimevalidation:main"
 
 [project.urls]
 Homepage = "https://google.com"
@@ -65,6 +67,7 @@ docs = [
 
 [tool.ruff]
 extend-exclude = ["cheatsheets"]
+line-length = 120
 lint.extend-select = [
     "E",    # Pycodestyle errors (style issues)
     "W",    # Pycodestyle warnings (style issues)
@@ -212,6 +215,7 @@ sequence = ["lock-upgrade", "sync-all"]
 [tool.poe.tasks.reviewcode]
 help = "Preview ruff's lint-fix and format, then check mypy errors. [fix-diff -> format-diff -> typecheck]"
 sequence = ["fix-diff", "format-diff", "typecheck"]
+ignore_fail = true
 
 [tool.mypy]
 python_version = "3.12"

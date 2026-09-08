@@ -8,7 +8,7 @@ from py_playground.expense_tracker.expense import Expense, ExpenseDict
 
 def expense_to_dict(expense: Expense) -> ExpenseDict:
     return {
-        "id": expense.id,
+        "id": expense.expense_id,
         "amount": str(expense.amount),
         "category": expense.category,
         "description": expense.description,
@@ -18,11 +18,11 @@ def expense_to_dict(expense: Expense) -> ExpenseDict:
 
 def expense_from_dict(data: ExpenseDict) -> Expense:
     return Expense(
-        data["id"],
-        decimal.Decimal(data["amount"]),
-        data["category"],
-        data["description"],
-        datetime.datetime.fromisoformat(data["date"]),
+        expense_id=data["id"],
+        amount=decimal.Decimal(data["amount"]),
+        category=data["category"],
+        description=data["description"],
+        date=datetime.datetime.fromisoformat(data["date"]),
     )
 
 

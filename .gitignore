@@ -12,6 +12,9 @@ wheels/
 # Environment variables
 .env
 
+# Logs
+*.log*
+
 # Cache
 .mypy_cache
 .pytest_cache

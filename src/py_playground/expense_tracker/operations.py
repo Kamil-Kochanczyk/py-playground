@@ -7,13 +7,13 @@ from py_playground.expense_tracker.expense import Category, Expense, ExpenseID
 def generate_next_id(expenses: list[Expense]) -> ExpenseID:
     if len(expenses) == 0:
         return 0
-    return max(expense.id for expense in expenses) + 1
+    return max(expense.expense_id for expense in expenses) + 1
 
 
 def print_expenses(expenses: list[Expense]) -> None:
     for expense in expenses:
         print(
-            f"{expense.id}, {expense.amount}, {expense.category}, {expense.description}, {expense.date.strftime('%x')}"
+            f"{expense.expense_id}, {expense.amount}, {expense.category}, {expense.description}, {expense.date.strftime('%x')}"
         )
 
 
@@ -23,7 +23,7 @@ def add_expense(expenses: list[Expense], expense: Expense) -> None:
 
 def delete_expense(expenses: list[Expense], id_to_delete: ExpenseID) -> bool:
     for expense in expenses:
-        if expense.id == id_to_delete:
+        if expense.expense_id == id_to_delete:
             expenses.remove(expense)
             return True
     return False
@@ -31,7 +31,7 @@ def delete_expense(expenses: list[Expense], id_to_delete: ExpenseID) -> bool:
 
 def get_expense(expenses: list[Expense], id_to_get: ExpenseID) -> Expense | None:
     for expense in expenses:
-        if expense.id == id_to_get:
+        if expense.expense_id == id_to_get:
             return expense
     return None
 

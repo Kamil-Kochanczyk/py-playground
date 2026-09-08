@@ -4,6 +4,8 @@ import datetime
 import decimal
 from typing import NewType, NotRequired, TypedDict
 
+from pydantic import BaseModel
+
 type ExpenseID = int  # type alias, i.e. giving another name for readability purposes
 
 # new types, similar to type aliases
@@ -12,25 +14,17 @@ Category = NewType("Category", str)
 Description = NewType("Description", str)
 
 
-class Expense:
-    def __init__(
-        self,
-        expense_id: ExpenseID,
-        amount: decimal.Decimal,
-        category: Category,
-        description: Description,
-        date: datetime.datetime,
-    ) -> None:
-        self.id = expense_id
-        self.amount = amount
-        self.category = category
-        self.description = description
-        self.date = date
+class Expense(BaseModel):
+    expense_id: ExpenseID
+    amount: decimal.Decimal
+    category: Category
+    description: Description
+    date: datetime.datetime
 
     def _members(
         self,
     ) -> tuple[ExpenseID, decimal.Decimal, Category, Description, datetime.datetime]:
-        return (self.id, self.amount, self.category, self.description, self.date)
+        return (self.expense_id, self.amount, self.category, self.description, self.date)
 
     def __eq__(self, other: object) -> bool:
         # __hash__ implicitly set to None because we don't define it
@@ -44,21 +38,21 @@ class Expense:
     @classmethod
     def dummy_expense(
         cls,
-        expense_id: ExpenseID = 0,
-        amount: decimal.Decimal = decimal.Decimal("0.0"),
-        category: Category = Category(""),
-        description: Description = Description(""),
-        date: datetime.datetime | None = None,
+        exp_id: ExpenseID = 0,
+        amt: decimal.Decimal = decimal.Decimal("0.0"),
+        cat: Category = Category(""),
+        des: Description = Description(""),
+        dattim: datetime.datetime | None = None,
     ) -> Expense:
-        if date is None:
-            date = datetime.datetime.min.replace(tzinfo=datetime.UTC)
+        if dattim is None:
+            dattim = datetime.datetime.min.replace(tzinfo=datetime.UTC)
 
         return cls(
-            expense_id,
-            amount,
-            category,
-            description,
-            date,
+            expense_id=exp_id,
+            amount=amt,
+            category=cat,
+            description=des,
+            date=dattim,
         )
 
 

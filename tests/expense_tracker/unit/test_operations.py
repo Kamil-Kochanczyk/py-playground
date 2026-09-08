@@ -14,8 +14,8 @@ from py_playground.expense_tracker.expense import Expense
 )
 def test_generate_next_id(existing_ids, expected_next_id, expense_factory_id):
     expenses = []
-    for i in range(len(existing_ids)):
-        expenses.append(expense_factory_id(existing_ids[i]))
+    for existing_id in existing_ids:
+        expenses.append(expense_factory_id(existing_id))
     assert operations.generate_next_id(expenses) == expected_next_id
 
 
@@ -25,9 +25,8 @@ def test_add_expense(example_expenses):
     some_expenses_expected.append(Expense.dummy_expense())
     operations.add_expense(some_expenses, Expense.dummy_expense())
     assert len(some_expenses) == len(some_expenses_expected)
-    n = len(some_expenses)
-    for i in range(n):
-        assert some_expenses[i] == some_expenses_expected[i]
+    for expense, expense_expected in zip(some_expenses, some_expenses_expected, strict=True):
+        assert expense == expense_expected
 
 
 @pytest.mark.parametrize(
@@ -48,10 +47,10 @@ def test_delete_expense(
     expense_factory_id,
 ):
     expenses = []
-    for i in range(len(existing_ids_before)):
-        expenses.append(expense_factory_id(existing_ids_before[i]))
+    for existing_id_before in existing_ids_before:
+        expenses.append(expense_factory_id(existing_id_before))
     bool_res = operations.delete_expense(expenses, id_to_delete)
-    new_ids = [expense.id for expense in expenses]
+    new_ids = [expense.expense_id for expense in expenses]
     assert bool_res == expected_bool
     assert new_ids == expected_ids_after
 
@@ -85,16 +84,15 @@ def test_filter_by_category(
     example_food_expenses,
 ):
     expenses = []
-    for i in range(len(existing_categories)):
-        expenses.append(expense_factory_category(existing_categories[i]))
+    for existing_category in existing_categories:
+        expenses.append(expense_factory_category(existing_category))
     filtered = operations.filter_by_category(expenses, filter_category)
     assert len(filtered) == expected_category_count
     assert all(expense.category == filter_category for expense in filtered)
     if filter_category == "food":
         assert len(filtered) == len(example_food_expenses)
-        n = len(filtered)
-        for i in range(n):
-            assert filtered[i].category == example_food_expenses[i].category
+        for filtered_expense, example_food_expense in zip(filtered, example_food_expenses, strict=True):
+            assert filtered_expense.category == example_food_expense.category
 
 
 @pytest.mark.parametrize(
@@ -114,8 +112,8 @@ def test_filter_by_category(
 )
 def test_calculate_total(existing_amounts, expected_total, expense_factory_amount):
     expenses = []
-    for i in range(len(existing_amounts)):
-        expenses.append(expense_factory_amount(existing_amounts[i]))
+    for existing_amount in existing_amounts:
+        expenses.append(expense_factory_amount(existing_amount))
     assert operations.calculate_total(expenses) == expected_total
 
 

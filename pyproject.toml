@@ -11,6 +11,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
+    "tzdata>=2026.3",
 ]
 license = "MIT"
 license-files = ["LICENSE", "AUTHORS"]
@@ -21,6 +22,7 @@ exp-track-cli = "py_playground.expense_tracker.main:main"
 enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
 gens-cli = "py_playground.other.generics:main"
+logdate-cli = "py_playground.other.loggingdates:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
 runval-cli = "py_playground.other.runtimevalidation:main"
 
@@ -30,6 +32,7 @@ exp-track-gui = "py_playground.expense_tracker.main:main"
 enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
 gens-gui = "py_playground.other.generics:main"
+logdate-cli = "py_playground.other.loggingdates:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
 runval-gui = "py_playground.other.runtimevalidation:main"
 
@@ -66,8 +69,8 @@ docs = [
 ]
 
 [tool.ruff]
-extend-exclude = ["cheatsheets"]
 line-length = 120
+extend-exclude = ["cheatsheets"]
 lint.extend-select = [
     "E",    # Pycodestyle errors (style issues)
     "W",    # Pycodestyle warnings (style issues)

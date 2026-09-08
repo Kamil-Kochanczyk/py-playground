@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import time
 from pathlib import Path
 
 from py_playground.expense_tracker import operations, storage
@@ -17,7 +18,9 @@ def handle_add_expense(expenses: list[Expense]) -> None:
         new_description = Description(input("Description: "))
         year, month, day = input("Date (yyyy/mm/dd): ").split("/")
         new_date = datetime.datetime(int(year), int(month), int(day), tzinfo=datetime.UTC)
-        new_expense = Expense(new_id, new_amount, new_category, new_description, new_date)
+        new_expense = Expense(
+            expense_id=new_id, amount=new_amount, category=new_category, description=new_description, date=new_date
+        )
         operations.add_expense(expenses, new_expense)
     except ValueError:
         print("Invalid input")
@@ -35,13 +38,13 @@ def handle_filter_by_category(expenses: list[Expense]) -> None:
 
 def handle_calculate_total(expenses: list[Expense]) -> None:
     total = operations.calculate_total(expenses)
-    print("Total: " + str(total))
+    print(f"Total: {total}")
 
 
 def handle_calculate_category_total(expenses: list[Expense]) -> None:
     category = Category(input("Category to filter expenses by: "))
     total = operations.calculate_category_total(expenses, category)
-    print("Category total: " + str(total))
+    print(f"Category total: {total}")
 
 
 def handle_delete_expense(expenses: list[Expense]) -> None:
@@ -54,6 +57,8 @@ def handle_delete_expense(expenses: list[Expense]) -> None:
 
 
 def main() -> None:
+    time_start = time.perf_counter()
+
     user_operations = {
         1: handle_add_expense,
         2: handle_print_expenses,
@@ -85,11 +90,18 @@ def main() -> None:
             elif user_choice != magic_value:
                 print("Invalid choice")
         except ValueError:
-            print("Invalid choice")
+            print("Invalid input")
+        except decimal.InvalidOperation:
+            print("Invalid operation (decimal could not parse a number)")
 
         print("\n====================================\n")
 
     storage.save_expenses(expenses, FILENAME)
+
+    time_end = time.perf_counter()
+
+    # time.perf_counter() is for benchmarking, not the "normal" time.time()
+    print(f"Session lasted {(time_end - time_start):.3f} s")
 
 
 if __name__ == "__main__":

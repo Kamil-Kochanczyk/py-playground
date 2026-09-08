@@ -6,6 +6,7 @@ from random import randint
 from typing import (
     Annotated,
     Any,
+    Literal,
     NamedTuple,
     Protocol,
     Self,
@@ -24,9 +25,14 @@ from pydantic import (
     ConfigDict,
     EmailStr,
     Field,
+    PlainSerializer,
     SecretStr,
+    TypeAdapter,
+    field_serializer,
     field_validator,
+    model_serializer,
     model_validator,
+    validate_call,
 )
 
 # add metadata without changing the interpretation of static type checkers
@@ -37,9 +43,9 @@ Time = Annotated[float, "s", {"min": 0}]
 
 
 def check_speed(v: Speed, s: Distance, t: Time) -> bool:
-    if t != 0:
-        return v == s / t
-    raise ZeroDivisionError("Time cannot be 0")
+    if t == 0:
+        raise ZeroDivisionError("Time cannot be 0")
+    return v == s / t
 
 
 # protocol for anything comparable
@@ -52,7 +58,7 @@ CT = TypeVar("CT", bound=Comparable)
 
 
 # dataclass is a decorator which creates many dunder methods automatically for you
-# useful if a class is mainly used as a container for related data rather than for having some functionality
+# useful if a class is mainly used as a container for related data rather than as sth with complex functionality
 # type hints required
 # fields with default values must follow fields without default values
 # field() is for more complex default values
@@ -91,6 +97,7 @@ class WhatIsIt(NamedTuple):
 # note: in Pydantic, just like in dataclasses,
 # it is a good practice to use Field() and default_factory for default values of mutable types, e.g. list/dict,
 # even though Pydantic helps you and creates a deepcopy if you use a mutable type as a default value of some attribute
+# Pydantic also has two contextx for defining custom serialization logic: field context and model context
 
 
 class Validators:
@@ -123,6 +130,7 @@ class Entity(BaseModel):
     # endregion
 
     # region field-level validation (decorators way)
+    # choose one mode: "Before" or "After"
     # name: Annotated[str, Field(min_length=1, max_length=7)]
     # @field_validator("name", mode="before")
     # @field_validator("name", mode="after")
@@ -137,6 +145,7 @@ class Entity(BaseModel):
     category: str | None = None
 
     # region model-level validation
+
     @model_validator(mode="before")
     @classmethod
     def ensure_not_too_long(cls, data: Any) -> Any:
@@ -208,11 +217,11 @@ class User(BaseModel):
         validate_by_alias=True,
         serialize_by_alias=True,
         alias_generator=AliasGenerator(
-            # verify against the predefined aliases
+            # validation: verify against the predefined aliases
             validation_alias=lambda field_name_str: AliasGenerators.get_user_validation_aliases().get(
                 field_name_str, field_name_str
             ),
-            # choose randomly from predefined aliases
+            # serialization: choose randomly from predefined aliases
             serialization_alias=lambda field_name_str: (
                 AliasGenerators.get_user_serialization_aliases()[field_name_str][
                     randint(
@@ -233,6 +242,42 @@ class User(BaseModel):
 
     email: EmailStr
     key: SecretStr
+
+    # region field-level serialization (Annotated way)
+    # status: Annotated[
+    #     Literal["Normal", "Mod", "Admin"] | None,
+    #     PlainSerializer(lambda field_name: f"***{field_name}***", return_type=str),
+    # ] = None
+    # endregion
+
+    # region field-level serialization (decorator way)
+
+    status: Literal["Normal", "Mod", "Admin"] | None = None
+
+    @field_serializer("status", mode="plain")
+    def ser_status(self, value: Any) -> Any:
+        if isinstance(value, str):
+            return f"^^^{value}^^^"
+        return value
+
+    # endregion
+
+    # region model-level serialization
+
+    # @model_serializer(mode="plain")
+    # def serialize_user(self) -> str:
+    #     return f"{self.name} --- {self.email} --- {self.key} --- {self.status}"
+
+    # endregion
+
+
+# easy way to validate function calls with pydantic
+# validation has some performance cost, though, compared to the raw version
+@validate_call(validate_return=True)
+def check_speed_pydantically(v: Speed, s: Distance, t: Time) -> bool:
+    if t == 0:
+        raise ZeroDivisionError("Time cannot be 0")
+    return v == s / t
 
 
 def main() -> None:
@@ -297,6 +342,18 @@ def main() -> None:
     user_data = {"username": "Aliased", "other": ["aliased@aliased.com", "desailA"]}
     aliased_user = User.model_validate(user_data, by_alias=True)
     print(aliased_user.model_dump_json(by_alias=True))
+
+    serialized_user = User(name="Kamil", email="kamil@gmail.com", key=SecretStr("limaK"), status="Admin")
+    print(serialized_user.model_dump(), serialized_user.model_dump_json())
+
+    # for simpler or primitive types you can also use TypeAdapter
+    # this way you don't have to create BaseModel classes
+    int_list_adapter = TypeAdapter(list[int])
+    print(int_list_adapter.validate_python((0, 1, 2)))
+    print(int_list_adapter.validate_json('["6", "7"]'))
+    print()
+
+    print(check_speed(1.0, 4.0, 2.0))
 
 
 if __name__ == "__main__":

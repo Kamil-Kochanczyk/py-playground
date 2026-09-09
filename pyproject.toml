@@ -139,6 +139,7 @@ lint.ignore = [
     "FBT003", # Flake8-boolean-trap - boolean position value in function call
     "D203",  # Pydocstyle - one blank line required before class docstring
     "D212",  # Pydocstyle - summary line should be immediately after the opening quotes.
+    "D213",  # Pydocstyle - summary line should be positioned on the seconds physical line of the docstring.
     "D400",  # Pydocstyle - First line should end with a period.
     "D401",  # Pydocstyle - Checks for docstring first lines that are not in an imperative mood.
     "D415",  # Pydocstyle - First line should end with a period, question mark, or exclamation point

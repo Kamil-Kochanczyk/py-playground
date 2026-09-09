@@ -59,8 +59,8 @@ def main() -> None:
 
     now = datetime.datetime.now(tz=datetime.UTC)
     birth = datetime.datetime(2002, 5, 4, 0, 40, 59, tzinfo=datetime.UTC)
-    days_since_birth = now - birth
-    logger.warning("I was born %d days ago", days_since_birth.days)
+    datetime_since_birth = now - birth
+    logger.warning("I was born %d days ago", datetime_since_birth.days)
 
     tomorrow = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(days=1, seconds=60)
     logger.warning(tomorrow)

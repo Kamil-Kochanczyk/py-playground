@@ -1,0 +1,73 @@
+site_name: Py Playground
+site_description: Educational Python Playground
+site_author: Kamil Kochańczyk
+
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - API Reference:
+    - Expense: api_reference/expense.md
+    - Main: api_reference/main.md
+    - Operations: api_reference/operations.md
+    - Storage: api_reference/storage.md
+  - Other: other.md
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  features:
+    - content.code.copy  # copy button in code blocks
+    - content.code.annotate  # "+" icons in code blocks
+    - navigation.top  # "Back to top" button when scrolling down  
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google  # google, numpy, sphinx
+            show_root_heading: true  # heading of the module?
+            show_source: true  # raw python source code blocks?
+            heading_level: 2  # basically how big the text should be
+
+markdown_extensions:
+  # info block, warning block, etc.
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  # Modern tabbed containers (=== "Tab Title")
+  - pymdownx.tabbed:
+        alternate_style: true
+  # Python-Markdown extension for parsing code blocks
+  - pymdownx.highlight:
+      # Enables Pygments as the backend syntax highlighter
+      use_pygments: true
+      # Selects the color theme for Pygments (e.g., slate, material, github, dracula)
+      pygments_style: material
+      # Adds a toggle to switch Pygments themes when switching light/dark modes
+      pygments_lang_class: true
+      # Generates clickable line numbers linked to specific lines in the URL
+      anchor_linenums: true
+      # Auto-detects code language if unspecified in the markdown fence
+      auto_title: true
+      # Displays line numbers on the left side of every code block by default
+      linenums: true
+  # Superfences allows nested code blocks inside admonitions/tabs and enables custom parsers
+  - pymdownx.superfences
+  # Inlinehilite allows inline code syntax highlighting (e.g., `python let x = 5`)
+  - pymdownx.inlinehilite
+  # Enables line-by-line highlighting and interactive code annotations inside code blocks
+  - pymdownx.snippets
+  # Details allows expandable/collapsible blocks (used for collapsible code blocks)
+  - pymdownx.details

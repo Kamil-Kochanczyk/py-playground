@@ -53,11 +53,6 @@ tests/
     └── test_storage.py
 ```
 
-# Other
-
-- provides `tmp_path` for temporary directory, useful for tests involving files and not messing with the actual data
-- if there are many tests, we can mark certain tests with our custom label (marker), e.g. we mark integration tests with `@pytest.mark.integration`, and when we want to run only the tests marked with this marker, we run `pytest -m integration`
-
 # Stubs and mocks
 
 The general idea is that sometimes a test depends on external services (e.g. API, database, network latency, etc.) which are unpredictable and can cause the tests to fail even though everything is correct in our code. Instead of using the real, external services, **fake**/**dummy** objects are used to replace them and give the tests everything they need. We can say that those replacement objects "mock" or "pretend to be" the real objects and hence the general term "mocking". The more expensive, external, nondeterministic, or uncontrollable the dependency is, the stronger the case for mocking.
@@ -78,3 +73,27 @@ The general idea is that sometimes a test depends on external services (e.g. API
   - this is because doing a patch on the true, original reference to the function can have unexpected consequences
   - TLDR: patch where it is used, not where it is defined, because this is how Python works
 - **monkeypatch** - similar to **patch** but it is a built-in pytest feature, does not work as context manager but with `set_` methods, it temporarily replaces values during tests
+
+# Other
+
+- provides `tmp_path` for temporary directory, useful for tests involving files and not messing with the actual data
+- if there are many tests, we can mark certain tests with our custom label (marker), e.g. we mark integration tests with `@pytest.mark.integration`, and when we want to run only the tests marked with this marker, we run `pytest -m integration`
+
+# Code coverage
+
+Code coverage is a metric that measures what percentage of your source code is executed when your test suite runs. It answers one simple question: *"Are there parts of my application that my tests never exercise?"*
+
+> [!WARNING]
+> 
+> **Coverage ≠ Quality**
+> 
+> High coverage means code was executed, not that your assertions are correct. You can have 100% coverage with tests that assert nothing useful.
+
+- **Line Coverage** - measures whether individual lines of code were executed
+- **Branch Coverage** - measures whether every path (branch) through a control structure (e.g. `if/else`, `try/except`) was taken
+
+Standard tool: `pytest-cov`.
+
+Rules of thumb:
+- Aim for 80%–90% of total coverage.
+- Use coverage in CI/CD: set up your GitHub Actions or GitLab CI to reject Pull Requests if coverage drops below your team's threshold (e.g., 85%).

@@ -63,6 +63,7 @@ build-backend = "uv_build"
 dev = [
     "mypy>=2.3.1",
     "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
@@ -198,7 +199,7 @@ args = [
 [tool.poe.tasks.test]
 # CLI task - single CLI command, extra arguments automatically forwarded to the command
 help = "Run tests using pytest"
-cmd = "pytest"
+cmd = "pytest --cov=src/py_playground/expense_tracker --cov-report=html --cov-branch"
 
 [tool.poe.tasks.clean]
 # shell task - multi-line command like in Linux shell
@@ -234,3 +235,25 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 exclude = ["test", "tests"]
 # enable_error_code = ["ignore-without-code"]
+
+[tool.coverage.run]
+omit = ["*/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 80
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+]

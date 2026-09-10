@@ -101,7 +101,7 @@ def main() -> None:
     executes the selected actions, and saves the updated list before exiting.
 
     """
-    time_start = time.perf_counter()
+    time_start = time.perf_counter()  # pragma: no cover
 
     user_operations = {
         1: handle_add_expense,
@@ -142,11 +142,11 @@ def main() -> None:
 
     storage.save_expenses(expenses, FILENAME)
 
-    time_end = time.perf_counter()
+    time_end = time.perf_counter()  # pragma: no cover
 
     # time.perf_counter() is for benchmarking, not the "normal" time.time()
-    print(f"Session lasted {(time_end - time_start):.3f} s")
+    print(f"Session lasted {(time_end - time_start):.3f} s")  # pragma: no cover
 
 
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

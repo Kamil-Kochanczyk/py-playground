@@ -78,3 +78,20 @@ def calculate_growth_rate(
 
     return (final_value / initial_value) ** (1 / time_period) - 1
 ```
+
+# Commands
+
+## mkdocs
+
+- `mkdocs new <directory>` - init
+- `mkdocs serve` - autoreloading when changes are detected
+- `mkdocs build` - static webpages
+
+## Sphinx
+
+- `sphinx-quickstart <directory>` - init
+- `sphinx-apidoc -f -e -M -o <dir where the generated .rst files will be saved> <dir where the package is>` - pulling the docstrings from the package
+- `sphinx-autobuild <docs directory> <build directory>` - autoreloading when changes are detected
+
+> [!Note]
+> There may be some issues with Sphinx not being able to properly import the desired modules. To fix this you can experiment with the paths in the `conf.py` file and with the paths used in the `sphinx-apidoc` command. Appropriate references in the .rst files may also play a role in this problem. Check the project source files to see how this has been solved for the expense tracker.

@@ -70,11 +70,14 @@ docs = [
     "mkdocs-material>=9.7.7",
     "mkdocstrings[python]>=1.0.6",
     "pygments>=2.21.0",
+    "sphinx>=9.1.0",
+    "sphinx-autobuild>=2025.8.25",
+    "sphinx-rtd-theme>=3.1.0",
 ]
 
 [tool.ruff]
 line-length = 120
-extend-exclude = ["cheatsheets"]
+extend-exclude = ["cheatsheets", "sphinx_docs_test"]
 lint.extend-select = [
     "E",    # Pycodestyle errors (style issues)
     "W",    # Pycodestyle warnings (style issues)
@@ -214,6 +217,26 @@ rm -rf .mypy_cache
 rm -rf build dist *.egg-info
 find . -type d -name "__pycache__" -exec rm -rf {} +
 """
+
+[tool.poe.tasks.sphclean]
+help = "Sphinx: clean directories containing generated files (build files and pulled docstring files)"
+shell = """
+rm -rf sphinx_docs_test/_build
+mkdir sphinx_docs_test/_build
+rm -rf sphinx_docs_test/api_reference
+mkdir sphinx_docs_test/api_reference
+"""
+
+[tool.poe.tasks.sphpull]
+help = "Sphinx: pull docstrings from specified Python package and remove unnecessary modules.rst file"
+shell = """
+sphinx-apidoc -f -e -M -o sphinx_docs_test/api_reference/ src/py_playground/expense_tracker
+rm sphinx_docs_test/api_reference/modules.rst
+"""
+
+[tool.poe.tasks.sphserve]
+help = "Sphinx: start live server"
+cmd = "sphinx-autobuild sphinx_docs_test sphinx_docs_test/_build"
 
 [tool.poe.tasks.update]
 # sequence task - multiple tasks running sequentially in order

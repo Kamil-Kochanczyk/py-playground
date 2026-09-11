@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from dataclasses import asdict, astuple, dataclass, field
+from functools import lru_cache
 from random import randint
 from typing import (
     Annotated,
@@ -34,6 +35,7 @@ from pydantic import (
     model_validator,
     validate_call,
 )
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # add metadata without changing the interpretation of static type checkers
 # metadata can be used at runtime for example to enforce validation
@@ -280,6 +282,73 @@ def check_speed_pydantically(v: Speed, s: Distance, t: Time) -> bool:
     return v == s / t
 
 
+# for dealing with environment variables and secrets use BaseSettings instead of BaseModel
+# you can still nest BaseModel objects inside BaseSettings object, though
+# BaseSettings automatically parses environment variables and secrets
+# order of precedence of parsing is as follows:
+# ┌─────────────────────────────────────────────────────────┐
+# │ 1. Arguments passed as keywords to Settings(var="val")  │ (Highest Priority)
+# ├─────────────────────────────────────────────────────────┤
+# │ 2. System / OS Environment Variables (OS / Shell)       │
+# ├─────────────────────────────────────────────────────────┤
+# │ 3. Variables loaded from the .env file                  │
+# ├─────────────────────────────────────────────────────────┤
+# │ 4. Field default values defined in your Python model    │ (Lowest Priority)
+# └─────────────────────────────────────────────────────────┘
+
+
+class MySettings(BaseSettings):
+    model_config = SettingsConfigDict(case_sensitive=False)
+
+    # default environment variables, i.e. those set in the shell/OS
+    user: Annotated[str, Field(alias="username")]
+    path: str
+    home: Annotated[str, Field(alias="homepath")]
+
+
+class MyDotEnvSettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_prefix="SECRET_",
+        extra="ignore",
+        dotenv_filtering="match_prefix",
+    )
+
+    # environment variables stored in the .env file, specific for the application
+    login: Annotated[str, Field(alias="LOGIN")]
+    key: Annotated[SecretStr, Field(alias="KEY")]
+
+
+class MySecretSettings(BaseSettings):
+    model_config = SettingsConfigDict(secrets_dir="./var/run")  # in general this path is absolute, not relative
+
+    # secrets
+    secret: str
+
+
+# repeated instantiating of settings classes like these above forces constant re-parsing and I/O operations
+# solution: cache the results for quick access
+
+
+class SettingsGetter:
+    @staticmethod
+    @lru_cache
+    def get_my_settings() -> MySettings:
+        return MySettings()  # type: ignore[]  # some params are not passed by keyword because they are read from the environment
+
+    @staticmethod
+    @lru_cache
+    def get_my_dotenv_settings() -> MyDotEnvSettings:
+        return MyDotEnvSettings()  # type: ignore[]  # some params are not passed by keyword because they are read from the environment
+
+    @staticmethod
+    @lru_cache
+    def get_my_secret_settings() -> MySecretSettings:
+        return MySecretSettings()  # type: ignore[]  # some params are not passed by keyword because they are read from the environment
+
+
 def main() -> None:
     # Annotate
     print(check_speed(1.0, 4.0, 2.0))
@@ -354,6 +423,14 @@ def main() -> None:
     print()
 
     print(check_speed(1.0, 4.0, 2.0))
+    print()
+
+    my_settings = SettingsGetter.get_my_settings()
+    print(my_settings.model_dump_json(by_alias=True))
+    my_dotenv_settings = SettingsGetter.get_my_dotenv_settings()
+    print(my_dotenv_settings.model_dump_json(by_alias=False))
+    my_secret_settings = SettingsGetter.get_my_secret_settings()
+    print(my_secret_settings.model_dump_json(by_alias=False))
 
 
 if __name__ == "__main__":

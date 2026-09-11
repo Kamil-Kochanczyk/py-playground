@@ -17,7 +17,6 @@ Choose **NumPy Docstrings** if:
 **Golden Rule**:
 
 - Pick one format and stick to it consistently across the entire codebase or repository.
-- If using Sphinx, enable sphinx.ext.napoleon to automatically parse both Google and NumPy docstrings into HTML docs.
 
 ## Examples to copy-paste
 

@@ -9,6 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "pydantic-settings>=2.15.0",
     "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
     "tzdata>=2026.3",
@@ -78,7 +79,9 @@ docs = [
 [tool.ruff]
 line-length = 120
 extend-exclude = ["cheatsheets", "sphinx_docs_test"]
-lint.extend-select = [
+
+[tool.ruff.lint]
+extend-select = [
     "E",    # Pycodestyle errors (style issues)
     "W",    # Pycodestyle warnings (style issues)
     "C90",  # McCabe – complexity metric for functions
@@ -139,7 +142,7 @@ lint.extend-select = [
     # "DOC",  # Pydoclint – docstring linting and consistency
     "RUF",  # Ruff-specific rules – additional Ruff checks
 ]
-lint.ignore = [
+ignore = [
     "INP001",  # Flake8-no-pep420 (package __init__ missing)
     "E501",  # Pycodestyle - line too long
     "D1",    # Pydocstyle - missing docstring in public module, class, or function
@@ -218,8 +221,18 @@ rm -rf build dist *.egg-info
 find . -type d -name "__pycache__" -exec rm -rf {} +
 """
 
+[tool.poe.tasks.update]
+# sequence task - multiple tasks running sequentially in order
+help = "Update lock file and then update all dependency groups (but skip extra/optional ones)"
+sequence = ["lock-upgrade", "sync-all"]
+
+[tool.poe.tasks.reviewcode]
+help = "Preview ruff's lint-fix and format, then check mypy errors [fix-diff -> format-diff -> typecheck]"
+sequence = ["fix-diff", "format-diff", "typecheck"]
+ignore_fail = true
+
 [tool.poe.tasks.sphclean]
-help = "Sphinx: clean directories containing generated files (build files and pulled docstring files)"
+help = "Sphinx: clean directories containing generated files (i.e. build files and pulled docstring files)"
 shell = """
 rm -rf sphinx_docs_test/_build
 mkdir sphinx_docs_test/_build
@@ -230,23 +243,13 @@ mkdir sphinx_docs_test/api_reference
 [tool.poe.tasks.sphpull]
 help = "Sphinx: pull docstrings from specified Python package and remove unnecessary modules.rst file"
 shell = """
-sphinx-apidoc -f -e -M -o sphinx_docs_test/api_reference/ src/py_playground/expense_tracker
+sphinx-apidoc -f -e -M -o sphinx_docs_test/api_reference src/py_playground/expense_tracker
 rm sphinx_docs_test/api_reference/modules.rst
 """
 
 [tool.poe.tasks.sphserve]
 help = "Sphinx: start live server"
 cmd = "sphinx-autobuild sphinx_docs_test sphinx_docs_test/_build"
-
-[tool.poe.tasks.update]
-# sequence task - multiple tasks running sequentially in order
-help = "Update lock file and then update all dependency groups (but skip extra/optional ones)"
-sequence = ["lock-upgrade", "sync-all"]
-
-[tool.poe.tasks.reviewcode]
-help = "Preview ruff's lint-fix and format, then check mypy errors. [fix-diff -> format-diff -> typecheck]"
-sequence = ["fix-diff", "format-diff", "typecheck"]
-ignore_fail = true
 
 [tool.mypy]
 python_version = "3.12"

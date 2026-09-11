@@ -36,7 +36,7 @@ plugins:
       handlers:
         python:
           options:
-            docstring_style: google  # google, numpy, sphinx
+            docstring_style: google  # google/numpy/sphinx
             show_root_heading: true  # heading of the module?
             show_source: true  # raw python source code blocks?
             heading_level: 2  # basically how big the text should be

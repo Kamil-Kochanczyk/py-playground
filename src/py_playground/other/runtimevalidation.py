@@ -282,7 +282,7 @@ def check_speed_pydantically(v: Speed, s: Distance, t: Time) -> bool:
     return v == s / t
 
 
-# for dealing with environment variables and secrets use BaseSettings instead of BaseModel
+# for dealing with environment variables and secrets, use BaseSettings instead of BaseModel
 # you can still nest BaseModel objects inside BaseSettings object, though
 # BaseSettings automatically parses environment variables and secrets
 # order of precedence of parsing is as follows:
@@ -293,7 +293,9 @@ def check_speed_pydantically(v: Speed, s: Distance, t: Time) -> bool:
 # ├─────────────────────────────────────────────────────────┤
 # │ 3. Variables loaded from the .env file                  │
 # ├─────────────────────────────────────────────────────────┤
-# │ 4. Field default values defined in your Python model    │ (Lowest Priority)
+# │ 4. Variables loaded from the secrets file               │
+# ├─────────────────────────────────────────────────────────┤
+# │ 5. Field default values defined in your Python model    │ (Lowest Priority)
 # └─────────────────────────────────────────────────────────┘
 
 
@@ -322,10 +324,10 @@ class MyDotEnvSettings(BaseSettings):
 
 
 class MySecretSettings(BaseSettings):
-    model_config = SettingsConfigDict(secrets_dir="./var/run")  # in general this path is absolute, not relative
+    model_config = SettingsConfigDict(secrets_dir="./var/run")  # in general this path should be absolute, not relative
 
     # secrets
-    secret: str
+    secret: SecretStr
 
 
 # repeated instantiating of settings classes like these above forces constant re-parsing and I/O operations

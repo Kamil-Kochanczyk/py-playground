@@ -30,3 +30,6 @@ htmlcov/
 # Docs
 site/
 sphinx_docs_test/_build
+
+# Generated user data
+src/py_playground/expense_tracker/data

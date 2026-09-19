@@ -156,6 +156,26 @@
 - `git checkout` - legacy all-in-one command that has been split-up into other smaller and more-focused commands, it can be used for example to checkout to a specific commit and to detach `HEAD`
 - `git checkout -b <name, e.g. hotfix-v1.0.1> <tag, e.g. v1.0.0>` - create a new branch off the specified tag (which points to some specific commit) or in other words, create a new branch starting at the specified tag (specified commit)
 
+# `.gitignore` syntax
+`.gitignore` files use globbing patterns (a simplified version of regular expressions) to determine which files and directories Git should ignore.
+
+* **`#` (Comments):** Lines starting with `#` are treated as comments and ignored.
+* **`/` (Directory separator):**
+  * **Leading slash (`/`):** Anchors the pattern to the root directory where the `.gitignore` file lives. For example, `/logs.txt` ignores `logs.txt` in the root, but not `subfolder/logs.txt`.
+  * **Trailing slash (`/`):** Tells Git to match only directories, not files. For example, `build/` ignores the `build` folder and everything inside it.
+  * **No slash:** Matches files or directories with that name anywhere in the repository. For example, `debug.log` matches `debug.log` in the root or in any subfolder.
+* **`*` (Wildcard):** Matches zero or more characters within a single path segment (it will not cross directory boundaries `/`). For example, `*.log` matches `app.log` and `error.log`.
+* **`**` (Recursive Wildcard):** Matches zero or more directories, allowing patterns to cross directory boundaries:
+  * **Leading `**/`:** Matches in any directory. For example, `**/logs` matches `logs` anywhere in the project.
+  * **Trailing `/**`:** Matches everything inside a directory. For example, `abc/**` matches all files inside `abc`.
+  * **Middle `/**/`:** Matches zero or more intermediate directories. For example, `a/**/b` matches `a/b`, `a/x/b`, or `a/x/y/b`.
+* **`?` (Single character):** Matches exactly one character (excluding `/`). For example, `cat?` matches `cats`, but not `cat` or `catch`.
+* **`[]` (Character Sets):** Matches a single character from a specified set or range:
+  * `[a-z]` matches any lowercase letter.
+  * `[0-9]` matches any single digit.
+  * `[aeiou]` matches any vowel.
+* **`!` (Negation):** Re-includes a file that was previously ignored by an earlier rule. For example: `*.log; !important.log`. Note: You cannot re-include a file if its parent directory is already ignored).
+
 # Overview
 
 ```

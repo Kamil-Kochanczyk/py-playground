@@ -7,13 +7,13 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
 
 # Environment variables
 .env
 
 # Secrets
-var/run
+var/run/
 
 # Logs
 *.log*
@@ -23,13 +23,13 @@ var/run
 htmlcov/
 
 # Cache
-.mypy_cache
-.pytest_cache
-.ruff_cache
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 # Docs
 site/
-sphinx_docs_test/_build
+sphinx_docs_test/_build/
 
 # Generated user data
-src/py_playground/expense_tracker/data
+src/py_playground/expense_tracker/data/

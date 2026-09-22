@@ -2,21 +2,36 @@
 
 - `docker system df` - show disk space usage
 - `docker system prune` - delete unused data
-- `docker run <user>/<name>:<tag>` - create and run a container from an image
-- `docker run -i -t [--rm] [--name <container_name>] [-v <volume_name_or_local_path>:<where_to_mount_inside_container_filesystem] <image, e.g. ubuntu:latest>` - run a container based on an image
+- `docker run <registry (user)>/<repository (name)>:<tag>` - create and run a container from an image
+- `docker run -i -t [-d] [--rm] [--name <container_name>] [-v <volume_name_or_local_path>:<where_to_mount_inside_container_filesystem] [--network <network_name>] [--network-alias <alias>] <image, e.g. ubuntu:latest>` - run a container based on an image
   - `-i` and `-t` add a pseudo, interactive terminal, this terminal has the possibility to take input (`-i`) and behaves like a real terminal (`-t`)
+  - `-d` allows the container to run in the background
   - `--rm` means that the container and its anonymous volumes will be deleted after the container exits
   - `--name` specifies name of the container
   - `-v` mounts (maps) a volume or a host's filesystem path to the virtual path visible inside the container
     - for volume mounts the option with `-v` could look for example like this: `-v my-volume:/my-container-dir`
     - for bind mounts the option with `-v` could look for example like this: `-v ${PWD}/mylocaldir:/my-containerdir`, where `PWD` means "Present Working Directory"
-- `docker images` - list all images
+  - `--network` attaches the container to a network
+  - `--network-alias` creates an alias (a DNS name) for the container to present itself using this alias in the specified network, e.g. instead of `docker.internal.host:5432` you can write `postgres:5432`
+- `docker image ls -a` - list all images (note that an image can have more than on tag, if one image is referenced by more than one tag, all those tags will be displayed, creating illusion as if there was more than one image, in such case you need to look at IDs (digests) and compare them to see if different tags actually correspond to the same image or to different images)
 - `docker container ls -a` - list all containers
 - `docker start <container_name>` - start the specified stopped container
 - `docker stop <container_name>` - stop the specified running container
 - `docker attach <container_name>` - attach STDIN, STDOUT and STDERR to the given container (in practice it enters the container's pseudo terminal)
-- `docker build -t <image_name> <directory with Dockerfile inside>` - start the process of building (creating a container based on an image)
+- `docker build -t <image_name> [-f <dockerfile_name>] [--target=<stage_name>] <directory with Dockerfile inside, or some other build context>` - start the process of building (creating a container based on an image)
 - `docker volume create <volume_name>` - create a new volume for storing persisting data
+- `docker login` - login (required before pushing)
+- `docker tag <source_img> <target_img>` - add a new tag (`<target_img>`) to the source image (`source_img`) (useful for adding the correct tag corresponding to the repo where we want to push the given image, in such case `<target_img>` should be `<username>/<repo_name>:<my_tag>`)
+- `docker push <username>/<repo_name>:<my_tag>` - push the specified image to the specified repo
+- `docker pull <username>/<repo_name>:<my_tag>` - pull the specified image from the specified repo
+- `docker network ls` list networks
+- `docker network (create | rm) <name>` - create/remove a network
+- `docker ps` - list containers
+- `docker logs <container_id>` - show logs of the container
+- `docker compose build` - use compose yaml file to build all necessary images
+- `docker compose up [-d]` - use compose yaml file to create and run containers (optional: run them in the background)
+- `docker compose stop` - use compose yaml file to stop containers running in the background
+- `docker compose -f <yml_file_1> -f <yml_file_2> ...` - use more than one file, the options in next file in the sequence override and/or merge with the options in the previous file
 
 # 3 most important Docker ideas
 
@@ -1400,7 +1415,7 @@ To store persistent data inside a container a common solution is to use **volume
 > [!TIP]
 > This third option (tmpfs mount) does not persist the data after the container exits, and is instead used as a temporary store for data you specifically DON'T want to persist (for example credential files). It is included here for completeness but should not be used for application data you want to persist.
 
-# Low level explanations of Docker concepts
+# Low level definitions
 
 ## Dockerfile
 
@@ -1720,3 +1735,432 @@ docker run -d --rm \
   -p 5432:5432 \
   postgres:15.1-alpine -c 'config_file=/etc/postgresql/postgresql.conf'
 ```
+
+# How to write Dockerfiles?
+
+Dockerfile is a textfile serving as a recipe for an image.
+
+👨‍🍳 Application Recipe:
+1. Start with an Operating System
+2. Install the language runtime
+3. Install any application dependencies
+4. Set up the execution environment
+5. Run the application
+
+> [!NOTE]
+> The process of converting a Dockerfile to an image is called **building**.
+> 
+> **BuildKit** is a build engine that takes a configuration file (such as a Dockerfile) and converts it into a built artifact (such as a Docker image). It uses **DAG (Directed Acyclic Graph)** data structure to represent various operations, usually file operations. **Child node** may represent a single Dockerfile command and it can be executed only if all **parent nodes** finish executing, where parent nodes may represent operations such as downloading files, putting them in a given directory, etc. Multiple parent node sequences leading to the same child node can be **parallelized**, thus improving efficiency.
+
+> [!NOTE]
+> Docker allows building **multi-architecture images** which make it possible to have multiple images of a single application, each suitable for a different CPU architexture (e.g. AMD vs ARM).
+
+To build (create) an image Docker uses both a Dockerfile and a **build context**. Build context is usually the directory with your source code.
+
+You can include a **`.dockerignore`** file inside the build context to specify which files should be ignored by Docker when an image copies source files from your local directory into a directory inside the image.
+
+> [!TIP]
+> **Use specific version of a base image instead of default `latest`. Additionally, try to use the lighter and more secure/restricted versions to reduce disk usage and improve security.**
+> 
+> This helps to prevent unexpected changes to your new builds due to latest upstream image being constantly updated by its provider.
+
+> [!TIP]
+> **Set the working directory inside the container according to the conventions of your language/framework.**
+
+> [!TIP]
+> **Use the trailing slash `/` whenever your target (e.g. copying target) is a directory, especially if this directory might not exist yet.**
+> 
+> Omit the trailing slash when you want to copy a single file and you want to explicitly rename it.
+
+> [!TIP]
+> **First copy the application dependencies and install them. Only after that copy the remaining necessary source code files.**
+> 
+> This order helps to prevent cache invalidation (cache recreation) and speeds up the build process.
+
+> [!TIP]
+> **Set the user inside the container to be non-root as this prevents the user of the application to have too many privileges and therefore adds another layer of secutiry to the application.**
+
+> [!TIP]
+> **Add metadata to the image, e.g. what port the image container is expected to be listened on.**
+
+> [!TIP]
+> **Use multi-stage Dockerfiles.**
+
+# More on multi-stage Dockerfiles
+
+In standard Docker, every tool you use to build your app (compilers, build scripts, development tools, full SDKs) stays inside the final container image forever even though you often don't need it after building the final app.
+
+A multi-stage Dockerfile lets you split your Dockerfile into distinct "stages." The idea is that you use heavy construction tools in stage 1 to compile your app, and then copy only the finished binary or code into a fresh, lightweight stage 2 for running it. Docker then discards everything from stage 1 leaving only lightweight stage 2.
+
+Pros:
+
+* reduced image sizes
+* better security (less packages +  less code + less ... = smaller attack surface)
+* faster deployments
+
+You can have more than 2 stages, of course. You can also define custom dependency tree between stages by creating common base stages and using them inside subsequent stages however you like. This can be used for example to create two separate (sub)images within a single Dockerfile: one application image for development/testing process and one application image for production deployment.
+
+Command:
+
+> docker build --target <stage_name> ...
+
+## Stage behaviour - cheatsheet
+
+Here is a concise cheat sheet for multi-stage Docker builds:
+
+---
+
+### 1. Default Behavior (No `--target` specified)
+
+* **Goal:** Docker builds the **last stage** defined at the bottom of the Dockerfile.
+* **Execution:** Docker builds the last stage and any parent stages it directly depends on (via `FROM` or `COPY --from`).
+* **Skipped:** Any stages that are NOT part of the direct dependency tree of that final stage are completely ignored and skipped.
+
+---
+
+### 2. Targeted Behavior (`--target <stage_name>`)
+
+* **Goal:** Docker stops immediately once the requested target stage is finished.
+* **Execution:** Docker builds only up to the specified stage (plus any parent stages it relies on).
+* **Skipped:** Every stage defined **after** the target stage—or on parallel branches—is completely ignored.
+
+---
+
+### 3. Linear vs. Parallel Stage Layouts
+
+* **Linear (Sequential):** `Stage A` $\rightarrow$ `Stage B` $\rightarrow$ `Stage C`
+  * Target `Stage B`: Builds `A` and `B`. Skips `C`.
+  * Target `Stage C` (or default): Builds `A`, `B`, and `C`.
+
+
+* **Parallel (Branched):** `Base` $\rightarrow$ (`Dev` **OR** `Production`)
+  * Target `Dev`: Builds `Base` and `Dev`. Skips `Production`.
+  * Target `Production` (or default): Builds `Base` and `Production`. Skips `Dev`.
+
+---
+
+### Summary Table
+
+| Build Command | Stages Processed | Stages Skipped |
+| --- | --- | --- |
+| `docker build .` | Bottom-most stage + its dependencies | Any unrelated intermediate/parallel stages |
+| `docker build --target <stage_name> .` | `<stage_name>` stage + its dependencies | Anything after `<stage_name>` or outside its path |
+
+# `--link`
+
+The `--link` flag in Docker's `COPY` command makes your builds **faster** and **smarter with cache** by creating files in an isolated layer instead of modifying the existing filesystem.
+
+---
+
+Imagine building a Docker image is like stacking transparent plastic sheets on top of each other:
+
+* **Without `--link` (Standard COPY):** Docker takes the current base layer, unpacks the base image, merges your new files *directly into it*, and creates a new combined layer. If the base image changes (e.g., an updated OS patch), Docker's cache breaks, and it has to copy all your files over again from scratch.
+* **With `--link`:** Docker creates your copied files on a completely separate, independent "sheet" without touching the layers underneath. It then links these independent layers together at the very end.
+
+---
+
+1. **Better Cache Reuse:** If you update your base image (e.g., `FROM node:18` to `node:20`), Docker can reuse the cached layer containing your copied files/dependencies. It doesn't need to perform the copy again.
+2. **Parallel Downloads & Builds:** Because the layer created by `COPY --link` doesn't depend on the base image existing locally first, Docker (via BuildKit) can copy your source files in parallel while it is still downloading or building the base image.
+
+---
+
+* **Use `--link` when:** You are copying application code, config files, or build artifacts that don't depend on files in the destination directory already existing.
+* **Avoid `--link` when:** You rely on the copied files merging with or overwriting existing system files or symlinks from previous layers in a specific way.
+
+# `ENTRYPOINT` vs `COPY`
+
+Think of a Docker container as an executable program with a set of default settings:
+
+* **`ENTRYPOINT` is *what* the container runs.** It defines the main command that always executes when the container starts.
+* **`CMD` is the *default argument* passed to that command.** It provides optional flags or inputs that can be easily overridden when running the container.
+
+In other words:
+
+* `ENTRYPOINT` says ***“this is the command I always want to run, with optional arguments”***
+* `CMD` says ***“this is the default command and arguments”***
+
+Imagine setting up a container that plays movie files using a command-line player like `vlc`:
+
+* **`ENTRYPOINT`** set to `vlc` means this container is built strictly to run `vlc`.
+* **`CMD`** set to `sample.mp4` means that if you don't specify a video, it defaults to playing `sample.mp4`.
+
+```dockerfile
+ENTRYPOINT ["vlc"]
+CMD ["sample.mp4"]
+
+```
+
+* **Default run:** Running `docker run my-player` executes:
+`vlc sample.mp4`
+* **Overriding CMD:** Running `docker run my-player action.mp4` overrides `CMD` and executes:
+`vlc action.mp4`
+
+| Feature | `ENTRYPOINT` | `CMD` |
+| --- | --- | --- |
+| **Primary Purpose** | Defines the fixed executable command. | Defines default arguments or a fallback command. |
+| **Overriding from CLI** | Hard to override (`docker run --entrypoint ...`). | Easy to override (just append arguments to `docker run`). |
+| **Common Use Case** | Single-purpose containers (e.g., database, web server, CLI tool). | Flexible containers or default flags. |
+
+---
+
+### How They Combine
+
+1. **Both used together (Recommended pattern):** `ENTRYPOINT` defines the binary, and `CMD` supplies default flags.
+```dockerfile
+ENTRYPOINT ["ping"]
+CMD ["8.8.8.8"]
+
+```
+
+
+* `docker run my-ping` $\rightarrow$ pings `8.8.8.8`
+* `docker run my-ping 1.1.1.1` $\rightarrow$ pings `1.1.1.1`
+
+
+2. **Only `CMD`:** Used when you want the container to be entirely flexible (e.g., a general-purpose Linux terminal image).
+```dockerfile
+CMD ["bash"]
+
+```
+
+
+* `docker run my-image` $\rightarrow$ launches `bash`
+* `docker run my-image python app.py` $\rightarrow$ runs `python app.py` instead.
+
+# About secrets
+
+## Overview
+
+> [!IMPORTANT]
+> A **secret** is any credential or sensitive value that should not end up in a Docker image, source control, logs, or a shared build cache.
+
+Examples are:
+
+- Postgres password
+- database URL
+- maybe API tokens or JWT signing keys
+- any app credentials
+
+You can pass the database password as a plain environment variable: `-e POSTGRES_PASSWORD=foobarbaz`. That is fine for local practice, but it is not the safest pattern for real use.
+
+
+> [!IMPORTANT]
+> **Secret injection** means:
+> - the secret is not baked into the image
+> - it is supplied when the container runs
+> - the container reads it from a protected source
+
+Typical sources:
+
+- environment variable
+- mounted file
+- Docker secret
+- Kubernetes secret
+- cloud secret manager
+
+> [!IMPORTANT]
+> **A secret should be provided at runtime, not hard-coded into your image or repo.**
+
+## Build-time secret vs runtime secret
+
+### 1) Build-time secret
+Used while building the image.
+
+Example:
+
+```dockerfile
+RUN --mount=type=secret,id=secret.txt,dst=/container-secret.txt \
+  echo "Loaded secret during build"
+```
+
+This is useful for:
+- fetching private packages
+- reading credentials needed during build
+- build automation
+
+But it is not the usual place for a Postgres password.
+
+Why?
+
+Because the user password is needed when the database starts, not just while the image is being built.
+
+### 2) Runtime secret
+Used when the container starts.
+
+This is what you want for Postgres.
+
+The official Postgres image supports this pattern:
+
+```bash
+docker run \
+  -e POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password \
+  -p 5432:5432 \
+  postgres:15.1-alpine
+```
+
+This is better than hardcoding `POSTGRES_PASSWORD=...` because the password is stored in a file that is not part of the Docker image.
+
+## Why the password matters
+
+A database password is not “just a variable”. It is the authentication credential.
+
+When your app connects:
+
+```text
+app -> Postgres
+```
+
+Postgres asks:
+- “Who are you?”
+- “Do you know the right password?”
+- “Are you allowed to access this database?”
+
+If the password is wrong, the app cannot connect.
+
+So the password is absolutely required. It is not useless just because it is stored in an env var.
+
+The question is: *“How do we keep password out of places where anyone can read it?”*
+
+## Secret best practices
+
+### Good
+- keep secrets outside the repo
+- use `.env` files locally but ignore them with `.gitignore`
+- use Docker secrets or a secret manager in real systems
+- limit who can read the secret
+- rotate credentials periodically
+
+### Bad
+- hard-code `password=abc123` in source files
+- commit secrets to Git
+- include secrets in Docker image layers
+- print secrets in logs
+
+## Local development
+Use a `.env` file or pass environment variables from the shell, but do not commit them.
+
+Example:
+
+```bash
+POSTGRES_PASSWORD=foobarbaz
+DATABASE_URL=postgres://postgres:foobarbaz@host.docker.internal:5432/postgres
+```
+
+Then in Docker:
+
+```bash
+docker run \
+  --env-file .env \
+  ...
+```
+
+This is common and practical.
+
+You can also keep a local secret file like:
+
+```text
+secret.txt
+```
+
+and ignore it in Git.
+
+# Networks
+
+**Docker networking is the virtual wiring that allows containers to talk to each other, to your main computer, or to the outside internet.**
+
+By default, Docker keeps containers completely isolated in their own little bubbles. Networks act as controlled bridges between those bubbles.
+
+## The 4 Common Network Types
+
+| Network Type | Analogy | How it Works | Best Used For |
+| --- | --- | --- | --- |
+| **Bridge** *(Default)* | A private Wi-Fi router inside your computer | Containers join a private virtual network. They can talk to each other by name, but are hidden from the outside world unless you open (publish) a port. | Standard apps running on a single computer (e.g., web app + database). |
+| **Host** | Plugging directly into the main wall jack | The container bypasses Docker's virtual network and shares your computer's exact IP address and ports directly. | High-performance apps where speed is critical and isolation isn't required. |
+| **Overlay** | A VPN connecting multiple houses | Connects containers running across different physical computers or servers into a single seamless network. | Multi-server setups (Docker Swarm / Kubernetes). |
+| **None** | Unplugging the ethernet cable | Complete isolation. The container has no network connection at all. | Running isolated background tasks like data processing or security tests. |
+
+## Practical Example: A Simple Web App
+
+Imagine you have a web server container and a database container:
+
+1. **Without a shared network:** The web server cannot find the database.
+2. **With a custom Bridge network:**
+* You create a network: `docker network create my-app-net`
+* You attach both containers to `my-app-net`.
+* Now, the web app can instantly connect to the database using its name (e.g., `http://database:5432`) without needing to know IP addresses.
+
+# Composing multiple containers
+
+If you have one container, you can use basic `docker run` command to manage its lifecycle. But if you have more than one container instead of dealing with each one of them through the individual `docker run` command, it is recommended to use `docker-compose.yml` file which makes managing multiple containers much easier (behind the scenes it does the same thing as `docker run` commands).
+
+To use `docker compose`, we write a yaml file that contains all of the necessary configuration options. For each `docker run` option there is a corresponding compose yaml syntax. Within the yaml file we specify which version of the `docker compose` syntax we are using, and then create a block for each service.
+
+```yaml
+version: "3.8"
+services:
+  service-a:
+    image: foo
+    # configuration options for service-a
+  service-b:
+    image: bar
+    # configuration options for service-b
+```
+
+# Security
+
+There are two main considerations when it comes to container security (1) the contents of your container image and (2) the security of the execution configuration and environment.
+
+## Image Security
+
+> [!IMPORTANT]
+> **Image security** is all about how secure is your image, i.e. what vulnerabilities exist in your image that an attacker could exploit, e.g. how big is your attack surface area.
+
+- Keep attack surface area as small as possible:
+  - Use minimal base images (multi-stage builds are a key enabler)
+  - Don’t install things you don’t need (don’t install dev deps)
+- Scan images using third-party tools
+- Use users with minimal permissions
+- Keep sensitive info out of images and inject them at runtime instead
+- Sign and verify images cryptographically
+- Use fixed image tags, either:
+  - Pin major.minor (allows patch fixes to be integrated)
+  - Pin specific image hash
+
+## Runtime Security
+
+> [!IMPORTANT]
+> **Runtime security** is all about how secure you are if an attacker manages to compromise a container. What can they do? Are they able to enter the host or are they securely confined within the container?
+
+### Docker daemon (dockerd)
+  - Start with `--userns-remap` option to make sure container's and host's namespaces are separated
+
+### Individual containers:
+- Use read only filesystem if writes are not needed
+- `--cap-drop=all` to drop all capabilities, then `--cap-add` anything you need
+- Limit cpu and memory, e.g. `--cpus=“0.5”` and `--memory 1024m`, to prevent Denial of Service Attacks
+- Use `--security-opt` to restrict what a containerized application can do at the system level
+  - seccomp profiles
+  - apparmor profiles
+
+# Development tips
+
+> [!TIP]
+> Use compose files and makefiles to be able to run multiple applications and perform multiple operations via single terminal commands.
+
+> [!TIP]
+> Use bind mounts to connect the code from the host to the container's filesystem. This allows you to see changes to your application in real-time, without having to rebuild the images every time a change to the source code is made.
+
+> [!TIP]
+> Use third-party utilities that enable automatic restarting (hot reloading) every time a change is made to the source code.
+
+> [!TIP]
+> Attach a debugger to a containerized application to be able to inspect local variables, go through the source code line by line, etc. To attach a debugger, the containerized application should publish a debugging port to which a debugger can be attached. Otherwise, it may be impossible to debug a containerized application running in isolation from the rest of the system.
+
+> [!TIP]
+> Configure test suites for a containerized application by overlaying an additional `docker-compose-test.yml` file over the `docker-compose-dev.yml` file to customize the commands such that they run tests.
+
+> [!TIP]
+> CI/CD TODO
+
+> [!TIP]
+> For each new pull request you can use a temporary (ephemeral) environment that will be active for some short amount of time and will allow you to see how your application behaves after that new pull request. Note tat such temporary environments are usually provided by third-party companies and are not usually free.

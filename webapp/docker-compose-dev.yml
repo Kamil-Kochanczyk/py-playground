@@ -1,0 +1,72 @@
+# this yml file allows hot reloading of the webapp-api and webapp-client containers during development
+name: webapp-composed-dev
+
+services:
+  webapp-db:
+    container_name: webapp-db-dev
+    networks:
+      webapp-net:
+        aliases:
+          - postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-password
+    ports:
+      - 5432:5432
+    volumes:
+      - ./webapp-db/secret.txt:/run/secrets/postgres-password:ro
+    image: webapp-db:1.0dev
+    build:
+      context: ./webapp-db/
+
+  webapp-api:
+    container_name: webapp-api-dev
+    networks:
+      webapp-net:
+        aliases:
+          - api-node
+    env_file:
+      - ./webapp-db/.env
+    ports:
+      - 3000:3000
+    image: webapp-api:1.0dev
+    depends_on:
+      - webapp-db
+    build:
+      context: ./api-node/
+      target: dev
+    volumes:
+      - type: bind
+        source: ./api-node/src/
+        target: /usr/src/app/src/
+      - type: volume
+        # shadow node_modules in container to isolate from host dependencies
+        target: /usr/src/app/node_modules
+
+  webapp-client:
+    container_name: webapp-client-dev
+    networks:
+      webapp-net:
+        aliases:
+          - client-react
+    ports:
+      - 5173:5173
+    image: webapp-client:1.0dev
+    build:
+      context: ./client-react/
+      target: dev
+    volumes:
+      - type: bind
+        source: ./client-react/
+        target: /usr/src/app/
+      - type: volume
+        # shadow the node_modules folder in the container with a volume
+        target: /usr/src/app/node_modules
+      - type: bind
+        source: ./client-react/vite.config.js
+        target: /usr/src/app/vite.config.js
+
+networks:
+  webapp-net:
+    name: webapp-net

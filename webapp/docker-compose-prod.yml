@@ -1,0 +1,55 @@
+# better alternative than Makefile with individual docker run commands is to use docker-compose
+name: webapp-composed-prod
+
+services:
+  webapp-db:
+    container_name: webapp-db-prod
+    networks:
+      webapp-net:
+        aliases:
+          - postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-password
+    ports:
+      - 5432:5432
+    volumes:
+      - ./webapp-db/secret.txt:/run/secrets/postgres-password:ro
+    image: webapp-db:1.0prod
+    build:
+      context: ./webapp-db/
+
+  webapp-api:
+    container_name: webapp-api-prod
+    networks:
+      webapp-net:
+        aliases:
+          - api-node
+    env_file:
+      - ./webapp-db/.env
+    ports:
+      - 3000:3000
+    image: webapp-api:1.0prod
+    depends_on:
+      - webapp-db
+    build:
+      context: ./api-node/
+      target: prod
+
+  webapp-client:
+    container_name: webapp-client-prod
+    networks:
+      webapp-net:
+        aliases:
+          - client-react
+    ports:
+      - 8080:8080
+    image: webapp-client:1.0prod
+    build:
+      context: ./client-react/
+      target: prod
+
+networks:
+  webapp-net:
+    name: webapp-net

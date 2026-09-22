@@ -13,7 +13,12 @@ wheels/
 .env
 
 # Secrets
+<<<<<<< HEAD
 var/run/
+=======
+var/run
+**/secret.txt
+>>>>>>> e87bb33 (Add webapp and an example workflow)
 
 # Logs
 *.log*
@@ -32,4 +37,8 @@ site/
 sphinx_docs_test/_build/
 
 # Generated user data
-src/py_playground/expense_tracker/data/
+src/py_playground/expense_tracker/data
+
+# Node.js
+**/node_modules/
+**/.npm

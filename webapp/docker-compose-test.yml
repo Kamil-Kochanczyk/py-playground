@@ -1,0 +1,19 @@
+# this yml file is the overlay for the docker-compose-dev.yml file
+# it is suppossed to be merged with the docker-compose-dev.yml file to enable running tests on the webapp-api container
+# the options specified here will override and/or merge with the options in the docker-compose-dev.yml file
+# docker compose -f docker-compose-dev.yml -f docker-compose-test.yml up --build
+
+services:
+  webapp-db:
+    container_name: webapp-db-test
+    image: webapp-db:1.0test
+  webapp-api:
+    container_name: webapp-api-test
+    image: webapp-api:1.0test
+    command:
+      - "npm"
+      - "run"
+      - "test"
+  webapp-client:
+    container_name: webapp-client-test
+    image: webapp-client:1.0test

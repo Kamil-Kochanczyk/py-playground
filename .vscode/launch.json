@@ -1,0 +1,18 @@
+// this file allows VS Code to attach the debugger to a running Node.js process inside a Docker container
+// the Node.js process must be running before the debugger can attach to it, so make sure to start the container first
+// when you debug a normal app running directly on your machine VS Code launches or attaches directly to a process running on your host operating system
+// VS Code can peek right inside its memory, set breakpoints, step through lines of code, and inspect variables seamlessly
+// when you dockerize an app, your code runs inside an isolated container—essentially a lightweight virtualized environment with its own file system and process space
+// VS Code can't directly inspect container memory out of the box because the process isn't running on your host system
+{
+    "configurations": [
+    {
+        "type": "node",
+        "request": "attach",
+        "name": "Docker Containers: Attach to Node",
+        "localRoot": "${workspaceFolder}/webapp/api-node",
+        "remoteRoot": "/usr/src/app",
+        "port": 9229
+    }
+    ]
+}

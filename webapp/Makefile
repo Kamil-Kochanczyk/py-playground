@@ -87,16 +87,16 @@ down-webapp-test:
 # 		-v "$(subst \,/,$(CURDIR))/webapp-db/secret.txt:$(POSTGRES_PSWD_FILE):ro" \
 # 		webapp-db:1.0
 
-# .PHONY: run-api-node-dock
-# run-api-node-dock:
-# 	@echo Starting node api
-# 	-docker run -d --rm \
-# 		--name "webapp-api-node-dock" \
-# 		--network $(NETWORK) \
-# 		--network-alias api-node \
-# 		--env-file "$(CURDIR)/webapp-db/.env" \
-# 		-p 3000:3000 \
-# 		webapp-api:1.0prod
+.PHONY: run-api-node-dock
+run-api-node-dock:
+	@echo Starting node api
+	-docker run -d --rm \
+		--name "webapp-api-node-dock" \
+		--network my_network \
+		--network-alias api-node \
+		--env-file "$(CURDIR)/webapp-db/.env" \
+		-p 3000:3000 \
+		healthcheck-test:latest
 
 # .PHONY: run-client-react-dock
 # run-client-react-dock:

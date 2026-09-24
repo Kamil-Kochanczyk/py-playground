@@ -27,7 +27,9 @@ FROM base AS prod
 ENV NODE_ENV=production
 
 # use cache mount to avoid redownloading all dependencies when a dependency changes
-# (previously downloaded dependencies will be stored locally)
+# previously downloaded dependencies will be stored in a persistent cache directory on the host machine
+# this cache directory is not saved in the image
+# but it can be reused between builds
 RUN --mount=type=cache,target=/usr/src/app/.npm \
   npm set cache /usr/src/app/.npm && \
   npm ci --omit=dev
@@ -42,7 +44,7 @@ USER node
 # note: 
 # - without "COPY --from=<stage>" the files are copied from the host
 # - with "COPY --from=<stage>" the files are copied from one of the previous stages
-COPY --chown=node:node ./src/ .
+COPY --chown=node:node ./src/ ./healthcheck/ ./
 
 # metadata: where the app is expected to be listened on
 EXPOSE 3000

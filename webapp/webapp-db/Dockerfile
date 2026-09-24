@@ -11,9 +11,13 @@ ARG BASE_IMG_TAG=15.1-alpine
 
 FROM postgres:${BASE_IMG_TAG}
 
-# mounting secrets allows for providing sensitive credentials required at build time while keeping them out of the final image
+# providing sensitive credentials required at build time while keeping them out of the final image
+# this is a built-time secret, a feature provided by BuildKit
+# its source needs to be specified in the command line when building the image
 RUN --mount=type=secret,id=secret.txt,dst=/container-secret.txt \
-  echo "Loaded secret during build; use it for built-time configuration only"
+  echo "Loaded secret during build; use it for built-time configuration only" && \
+  echo "Secret content:" && \
+  cat /container-secret.txt
 
 # these variables are available both at build time and at runtime and can be seen in the image metadata
 # they can be overriden for example using "docker run -e POSTGRES_USER=..."

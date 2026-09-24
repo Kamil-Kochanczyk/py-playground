@@ -39,6 +39,7 @@ jobs:
         with:
           file: ./webapp/api-node/Dockerfile
           context: ./webapp/api-node/
+          target: prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 

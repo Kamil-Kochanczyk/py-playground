@@ -1,4 +1,5 @@
 # this yml file allows hot reloading of the webapp-api and webapp-client containers during development
+# here we use simple volume/bind mount to provide secret.txt
 name: webapp-composed-dev
 
 services:
@@ -37,11 +38,14 @@ services:
       context: ./api-node/
       target: dev
     volumes:
+        # shadow read-only and baked source code from the image with existing source code on the host
+        # this allows reflecting changes made to the source code on the host without rebuilding the image
+        # it is suppossed to be used only in development and not in production
       - type: bind
         source: ./api-node/src/
         target: /usr/src/app/src/
       - type: volume
-        # shadow node_modules in container to isolate from host dependencies
+        # add anonymous volume overlay to the node_modules folder in the container to avoid overwriting it with the host's node_modules folder
         target: /usr/src/app/node_modules
 
   webapp-client:
@@ -57,11 +61,12 @@ services:
       context: ./client-react/
       target: dev
     volumes:
+        # shadowing read-only and baked source code from the image with existing source code on the host
       - type: bind
         source: ./client-react/
         target: /usr/src/app/
       - type: volume
-        # shadow the node_modules folder in the container with a volume
+        # anonymous volume overlay
         target: /usr/src/app/node_modules
       - type: bind
         source: ./client-react/vite.config.js

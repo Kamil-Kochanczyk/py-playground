@@ -1,0 +1,47 @@
+# this file is built based on the docker-compose-prod.yml file and is used to deploy the webapp stack in production using docker stack deploy command
+# we use only api because currently Docker Hub stores only the api image (see GitHub Actions workflow for details)
+# the "http://localhost:3000/" endpoint will not work because the database is not running in this stack
+# however, the "http://localhost:3000/ping" endpoint should work and return "pong"
+
+services:
+  webapp-api:
+    networks:
+      webapp-net:
+        aliases:
+          - api-node
+    env_file:
+      - ./webapp-db/.env
+    secrets:
+      - external-swarm-secret
+      - non-external-secret
+    ports:
+      - 3000:3000
+    image: 'tuilindo05/docker-playground:20260922-e87bb33'
+    deploy:
+      mode: replicated
+      replicas: 3
+      update_config:
+        # start the new container before stopping the old one to avoid downtime and allow rolling updates
+        order: start-first
+    healthcheck:
+      test: [ "CMD", "node", "/usr/src/app/healthcheck.js" ]
+      # how often to run the health check command
+      interval: 30s
+      # how long to wait before considering the health check command to have failed
+      timeout: 5s
+      # how many consecutive failures are needed to consider the container as unhealthy
+      retries: 3
+      # how long to wait after starting the container before starting health checks
+      start_period: 10s
+
+networks:
+  webapp-net:
+    name: webapp-net
+
+secrets:
+  external-swarm-secret:
+    # managed externally via docker secret create command
+    external: true
+  non-external-secret:
+    # loaded from a local file
+    file: ./webapp-db/secret.txt

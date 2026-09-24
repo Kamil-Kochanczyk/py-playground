@@ -1,4 +1,5 @@
 # better alternative than Makefile with individual docker run commands is to use docker-compose
+# here we use Docker secrets approach to provide secret.txt
 name: webapp-composed-prod
 
 services:
@@ -12,10 +13,10 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-password
+    secrets:
+      - postgres-password
     ports:
       - 5432:5432
-    volumes:
-      - ./webapp-db/secret.txt:/run/secrets/postgres-password:ro
     image: webapp-db:1.0prod
     build:
       context: ./webapp-db/
@@ -53,3 +54,7 @@ services:
 networks:
   webapp-net:
     name: webapp-net
+
+secrets:
+  postgres-password:
+    file: ./webapp-db/secret.txt

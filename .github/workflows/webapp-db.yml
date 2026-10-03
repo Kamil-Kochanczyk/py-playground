@@ -2,10 +2,10 @@ name: webapp-db-cicd
 
 on:
   push:
-    branches:
-      - 'example-web-app'
+    # branches:
+      # - 'example-web-app'
     tags:
-      - 'v*'
+      - 'webapp-v*'
 
 jobs:
   tag-build-push:
@@ -24,8 +24,8 @@ jobs:
             type=raw,value=latest
             type=ref,event=branch
             type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=${{ github.ref_name }},match=webapp-v(.*)
+            type=semver,pattern={{major}}.{{minor}},value=${{ github.ref_name }},match=webapp-v(.*)
             type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
 
       - name: Login to Docker Hub

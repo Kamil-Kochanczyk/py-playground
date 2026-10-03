@@ -1,22 +1,52 @@
 # this file is built based on the docker-compose-prod.yml file and is used to deploy the webapp stack in production using docker stack deploy command
-# we use only api because currently Docker Hub stores only the api image (see GitHub Actions workflow for details)
-# the "http://localhost:3000/" endpoint will not work because the database is not running in this stack
-# however, the "http://localhost:3000/ping" endpoint should work and return "pong"
+# both the "http://localhost:3000/" and the "http://localhost:3000/ping" endpoints should work and return the date and "pong", respectively
+# the "http://localhost:8080/" should also work and return the welcome page
+# as of now this file uses external secrets so make sure to create them before deploying the stack
 
 services:
-  webapp-api:
+  webapp-db:
+    networks:
+      webapp-net:
+        aliases:
+          - postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-password
+    secrets:
+      - postgres-password
+    ports:
+      - 5432:5432
+    image: 'tuilindo05/dockercourse-postgres:20261003-7e67f97'
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        order: start-first
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  webapp-backend:
     networks:
       webapp-net:
         aliases:
           - api-node
-    env_file:
-      - ./webapp-db/.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=postgres
+      - PGUSER=postgres
+      - PGPASSWORD_FILE=/run/secrets/postgres-password
     secrets:
-      - external-swarm-secret
-      - non-external-secret
+      # - external-swarm-secret
+      # - non-external-secret
+      - postgres-password
     ports:
       - 3000:3000
-    image: 'tuilindo05/docker-playground:20260922-e87bb33'
+    image: 'tuilindo05/dockercourse-api-node:20261003-1114d47'
     deploy:
       mode: replicated
       replicas: 3
@@ -34,14 +64,36 @@ services:
       # how long to wait after starting the container before starting health checks
       start_period: 10s
 
+  webapp-frontend:
+    networks:
+      webapp-net:
+        aliases:
+          - client-react
+    ports:
+      - 8080:8080
+    image: 'tuilindo05/dockercourse-client-react:20261003-1114d47'
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        order: start-first
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8080"]
+    #   interval: 30s
+    #   timeout: 5s
+    #   retries: 3
+    #   start_period: 10s
+
 networks:
   webapp-net:
     name: webapp-net
 
 secrets:
-  external-swarm-secret:
-    # managed externally via docker secret create command
+  # external -> managed externally via "docker secret create" command
+  # external-swarm-secret:
+  #   external: true
+  # non-external -> loaded from a local file
+  # non-external-secret:
+  #   file: ./webapp-db/secret.txt
+  postgres-password:
     external: true
-  non-external-secret:
-    # loaded from a local file
-    file: ./webapp-db/secret.txt

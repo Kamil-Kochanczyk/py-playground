@@ -44,8 +44,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           secrets: |
             "secret.txt=${{ secrets.WEBAPP_DB_BUILD_SECRET }}"
-          build-args: |
-            BASE_IMG_TAG=18.6-alpine3.24
+          # build-args: |
+          #   BASE_IMG_TAG=18.6-alpine3.24
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

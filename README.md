@@ -4,8 +4,6 @@
 
 ![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-green.svg)
-![CLI Project](https://img.shields.io/badge/Project-CLI%20Learning%20App-4B8BBE?logo=python&logoColor=white)
-![uv + pytest](https://img.shields.io/badge/Tooling-uv%20%2B%20pytest-FFD43B?logo=python&logoColor=black)
 
 </div>
 
@@ -106,44 +104,6 @@ The current expense data is persisted in:
 
 `src/py_playground/expense_tracker/data/expenses.json`
 
-## Project Structure (as of 09/09/2026)
-
-```text
-py-playground/
-├── README.md
-├── pyproject.toml
-├── LICENSE
-├── AUTHORS
-├── src/
-│   └── py_playground/
-│       ├── __init__.py
-│       ├── __main__.py
-│       ├── expense_tracker/
-│       │   ├── __init__.py
-│       │   ├── expense.py
-│       │   ├── main.py
-│       │   ├── operations.py
-│       │   ├── storage.py
-│       │   └── data/
-│       │       └── expenses.json
-│       └── other/
-│           ├── enumfun.py
-│           ├── envvars.py
-│           ├── generics.py
-│           ├── loggingdates.py
-│           ├── nonlocalexample.py
-│           └── runtimevalidation.py
-├── tests/
-│   └── expense_tracker/
-│       ├── conftest.py
-│       ├── e2e/
-│       ├── integration/
-│       └── unit/
-├── cheatsheets/
-├── docs/
-└── .gitignore
-```
-
 ## Testing
 
 The repository contains a structured test suite covering different layers of the application:
@@ -173,8 +133,6 @@ You can also use the configured project tasks for maintenance and review workflo
 
 This project is licensed under the MIT License.
 
----
-
 ## Notes
 
 A professional README should usually help users answer five key questions quickly:
@@ -184,3 +142,19 @@ A professional README should usually help users answer five key questions quickl
 3. What does the codebase contain?
 4. How do I verify it works?
 5. Where can I find the relevant files?
+
+# Example web app
+
+Apart from expense tracker this project also contains a simple web app included here for learning basic Docker and GitHub Actions concepts.
+
+The original source code of the web app can be found here: https://github.com/sidpalas/devops-directive-docker-course.
+
+Learning progress:
+
+1. web app source code (README, HTML, CSS, JavsScript, etc.)
+2. Makefile, version 3
+3. 3 Dockerfiles (database, backend, frontend)
+4. Makefile, version 2
+5. Makefile, version 1
+6. .github workflows
+7. docker-stack.yml

@@ -1,4 +1,4 @@
-# this yml file allows hot reloading of the webapp-api and webapp-client containers during development
+# this yml file allows hot reloading of the webapp-backend and webapp-frontend containers during development
 # here we use simple volume/bind mount to provide secret.txt
 name: webapp-composed-dev
 
@@ -21,52 +21,57 @@ services:
     build:
       context: ./webapp-db/
 
-  webapp-api:
-    container_name: webapp-api-dev
+  webapp-backend:
+    container_name: webapp-backend-dev
     networks:
       webapp-net:
         aliases:
           - api-node
-    env_file:
-      - ./webapp-db/.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=postgres
+      - PGUSER=postgres
+      - PGPASSWORD_FILE=/run/secrets/postgres-password
     ports:
       - 3000:3000
-    image: webapp-api:1.0dev
+    image: webapp-backend:1.0dev
     depends_on:
       - webapp-db
     build:
       context: ./api-node/
       target: dev
     volumes:
-        # shadow read-only and baked source code from the image with existing source code on the host
+      - ./webapp-db/secret.txt:/run/secrets/postgres-password:ro
+        # shadow read-only and baked source code from the image with existing source code from the host
         # this allows reflecting changes made to the source code on the host without rebuilding the image
         # it is suppossed to be used only in development and not in production
       - type: bind
         source: ./api-node/src/
         target: /usr/src/app/src/
+      # add anonymous volume overlay to the node_modules folder in the container to avoid overwriting it with the host's node_modules folder
       - type: volume
-        # add anonymous volume overlay to the node_modules folder in the container to avoid overwriting it with the host's node_modules folder
         target: /usr/src/app/node_modules
 
-  webapp-client:
-    container_name: webapp-client-dev
+  webapp-frontend:
+    container_name: webapp-frontend-dev
     networks:
       webapp-net:
         aliases:
           - client-react
     ports:
       - 5173:5173
-    image: webapp-client:1.0dev
+    image: webapp-frontend:1.0dev
     build:
       context: ./client-react/
       target: dev
     volumes:
-        # shadowing read-only and baked source code from the image with existing source code on the host
+      # shadowing read-only and baked source code from the image with existing source code on the host
       - type: bind
         source: ./client-react/
         target: /usr/src/app/
+      # anonymous volume overlay
       - type: volume
-        # anonymous volume overlay
         target: /usr/src/app/node_modules
       - type: bind
         source: ./client-react/vite.config.js

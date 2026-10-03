@@ -1,22 +1,24 @@
-# this yml file is the overlay for the docker-compose-dev.yml file
-# it is suppossed to be merged with the docker-compose-dev.yml file to enable debugging of the webapp-api container
+# this file is the overlay for the docker-compose-dev.yml file
+# it is suppossed to be merged with the docker-compose-dev.yml file to enable debugging of the webapp-backend container
 # the options specified here will override and/or merge with the options in the docker-compose-dev.yml file
 # docker compose -f docker-compose-dev.yml -f docker-compose-debug.yml up --build
+# note that this file preserves the ability to hot reload
 
 services:
   webapp-db:
     container_name: webapp-db-debug
     image: webapp-db:1.0debug
-  webapp-api:
-    container_name: webapp-api-debug
-    image: webapp-api:1.0debug
+  webapp-backend:
+    container_name: webapp-backend-debug
+    image: webapp-backend:1.0debug
     command:
       - "npm"
       - "run"
       - "debug-docker"
     ports:
       - "3000:3000"
+      # the following port is for the debugger
       - "9229:9229"
-  webapp-client:
-    container_name: webapp-client-debug
-    image: webapp-client:1.0debug
+  webapp-frontend:
+    container_name: webapp-frontend-debug
+    image: webapp-frontend:1.0debug

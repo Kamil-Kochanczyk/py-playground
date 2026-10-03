@@ -2,9 +2,30 @@ const fs = require('fs');
 
 const { Pool } = require('pg');
 
-const databaseUrl =
-  process.env.DATABASE_URL ||
-  fs.readFileSync(process.env.DATABASE_URL_FILE, 'utf8');
+const buildDatabaseUrl = (env = process.env) => {
+  if (env.DATABASE_URL) {
+    return env.DATABASE_URL;
+  }
+
+  if (env.DATABASE_URL_FILE) {
+    return fs.readFileSync(env.DATABASE_URL_FILE, 'utf8').replace(/\r?\n$/, '');
+  }
+
+  const missing = ['PGHOST', 'PGDATABASE', 'PGUSER'].filter((key) => !env[key]);
+  if (!env.PGPASSWORD && !env.PGPASSWORD_FILE) {
+    missing.push('PGPASSWORD or PGPASSWORD_FILE');
+  }
+  if (missing.length > 0) {
+    throw new Error(`Missing database configuration: ${missing.join(', ')}`);
+  }
+
+  const password = env.PGPASSWORD ?? fs.readFileSync(env.PGPASSWORD_FILE, 'utf8').replace(/\r?\n$/, '');
+  const port = env.PGPORT || '5432';
+
+  return `postgresql://${encodeURIComponent(env.PGUSER)}:${encodeURIComponent(password)}@${env.PGHOST}:${port}/${encodeURIComponent(env.PGDATABASE)}`;
+};
+
+const databaseUrl = buildDatabaseUrl();
 
 const pool = new Pool({
   connectionString: databaseUrl,
@@ -30,4 +51,4 @@ const getDateTime = async () => {
   }
 };
 
-module.exports = { getDateTime };
+module.exports = { buildDatabaseUrl, getDateTime };

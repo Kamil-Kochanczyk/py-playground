@@ -16,15 +16,9 @@ export default defineConfig({
       interval: 1000,
     },
     proxy: {
-      '/api/golang': {
-        target: 'http://host.docker.internal:8080',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/golang/, ''),
-        secure: false,
-      },
       '/api/node': {
         // target: 'http://host.docker.internal:3000',
-        target: 'http://webapp-api:3000',
+        target: 'http://api-node:3000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/node/, ''),
         secure: false,

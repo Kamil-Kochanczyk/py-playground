@@ -26,7 +26,7 @@ RUN npm run build
 
 
 
-FROM nginx:1.31.6-alpine-slim as prod
+FROM nginx:1.31.6-alpine-slim AS prod
 
 # --link is used to put files on an independent layer,
 # i.e. a layer which doesn't get invalidated when commands on previous layers change
@@ -53,5 +53,5 @@ EXPOSE 8080
 # if you wrote CMD here you could overrride the nginx command at "docker run" time
 # by using ENTRYPOINT you fix the runtime to always run nginx command
 # in this way you pinpoint the behaviour to one specific command
-# you can still override it though with "--entrypoint ..." flag
+# you can still override it, though, with "--entrypoint ..." flag
 ENTRYPOINT [ "nginx", "-g", "daemon off;" ]

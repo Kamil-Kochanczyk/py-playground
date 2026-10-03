@@ -1,6 +1,6 @@
-# =======================================
-# Version 1 (composed db, api and client)
-# =======================================
+# ============================================================
+# Version 1 (composed db, api (backend) and client (frontend))
+# ============================================================
 
 .PHONY: build-webapp-prod
 build-webapp-prod:
@@ -55,7 +55,7 @@ build-webapp-test:
 .PHONY: up-webapp-test
 up-webapp-test:
 	@echo Starting webapp-test containers
-	docker compose -f docker-compose-dev.yml -f docker-compose-test.yml run --rm webapp-api
+	docker compose -f docker-compose-dev.yml -f docker-compose-test.yml run --rm webapp-backend
 
 .PHONY: down-webapp-test
 down-webapp-test:
@@ -66,9 +66,21 @@ down-webapp-test:
 
 
 
-# ============================================================
+# =========================================================================
 # Version 2 (deprecated) (dockerized db, dockerized api, dockerized client)
-# ============================================================
+# =========================================================================
+
+# This version uses the dockerized db, api and client
+# Contrary to the version below, in this version db, api and client are dockerized using their own Dockerfiles
+# To run the following commands, first you have to build the three images: one for db, one for api and one for client
+# You can build both production images and development images using the provided Dockerfiles
+# A still better approach would be to compose the three separate images in one file
+
+# Note that using an env file with a URL containing password is not the safest option for an API to connect to a DB
+
+# If using this version make sure the published frontend's port is correct
+# This is because frontend operates on a different port in production mode (8080) and in development mode (5173)
+# Also make sure that in vite.config.js the target url uses the network alias specified here (e.g. target: 'http://api-node:3000')
 
 # NETWORK:=webapp-net
 # POSTGRES_PSWD_FILE:=/run/secrets/postgres-password
@@ -87,16 +99,16 @@ down-webapp-test:
 # 		-v "$(subst \,/,$(CURDIR))/webapp-db/secret.txt:$(POSTGRES_PSWD_FILE):ro" \
 # 		webapp-db:1.0
 
-.PHONY: run-api-node-dock
-run-api-node-dock:
-	@echo Starting node api
-	-docker run -d --rm \
-		--name "webapp-api-node-dock" \
-		--network my_network \
-		--network-alias api-node \
-		--env-file "$(CURDIR)/webapp-db/.env" \
-		-p 3000:3000 \
-		healthcheck-test:latest
+# .PHONY: run-api-node-dock
+# run-api-node-dock:
+# 	@echo Starting node api
+# 	-docker run -d --rm \
+# 		--name "webapp-api-node-dock" \
+# 		--network ${NETWORK} \
+# 		--network-alias api-node \
+# 		--env-file "$(CURDIR)/webapp-db/.env" \
+# 		-p 3000:3000 \
+# 		webapp-backend:1.0
 
 # .PHONY: run-client-react-dock
 # run-client-react-dock:
@@ -106,7 +118,7 @@ run-api-node-dock:
 # 		--network $(NETWORK) \
 # 		--network-alias client-react \
 # 		-p 8080:8080 \
-# 		webapp-client:1.0
+# 		webapp-frontend:1.0
 
 # .PHONY: stop-webapp-dock
 # stop-webapp-dock:
@@ -126,19 +138,17 @@ run-api-node-dock:
 # Version 3 (deprecated) (undockerized db, undockerized api, undockerized client)
 # ===============================================================================
 
-# This file runs the database, the backend (api) and the frontend using dockerized postgres and node
-# Here, the backend (api) and the frontend are treated as not fully dockerized (they're only using the dockerized node)
-# In other words: the backend (api) and the frontend run locally and are not built as images themselves
-# The backend (api) and the frontend can of course be dockerized and this is actually the recommended approach
-# See the corresponding dockerfiles, built the images and run the containers, for comparison with the approach presented in this file
+# This version runs the database, the backend (api) and the frontend (client) using dockerized postgres and node
+# Here, the backend and the frontend are treated as not fully dockerized (they're only using the dockerized node)
+# In other words: the backend and the frontend run locally and are not built as images themselves
+# The backend and the frontend can of course be dockerized and this is actually the recommended approach
 
-# if using this approach, set url in .env file to the following:
-# DATABASE_URL=postgres://postgres:foobarbaz@host.docker.internal:5432/postgres
+# If using this approach, set url in .env file to the following:
+# DATABASE_URL=postgres://postgres:apfff@host.docker.internal:5432/postgres
+# If using this approach, set target in vite.config.js file to the following:
+# target: 'http://host.docker.internal:3000'
 
-# Local host apps use localhost, but apps running inside Docker must connect via
-# the host gateway instead of the container's own loopback interface.
-# DATABASE_URL_LOCAL:=postgres://postgres:foobarbaz@localhost:5432/postgres
-# DATABASE_URL_DOCKER:=postgres://postgres:foobarbaz@host.docker.internal:5432/postgres
+# Note that normally you shouldn't put a URL with password inside a Makefile that is committed
 
 # POSTGRES_PSWD_FILE:=/run/secrets/postgres-password
 
@@ -191,6 +201,14 @@ run-api-node-dock:
 # rm-webapp:
 # 	@echo Removing webapp containers
 # 	docker rm webapp-postgres webapp-api-node webapp-client-react
+
+
+
+
+
+# ===============================================================================
+# Notes
+# ===============================================================================
 
 # By default, a Docker container runs inside an isolated network. 
 # If your application running inside the container needs to talk to something running directly on your host machine 

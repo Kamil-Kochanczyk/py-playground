@@ -1,5 +1,8 @@
-# better alternative than Makefile with individual docker run commands is to use docker-compose
+# a better alternative than individual "docker build" and "docker run" commands is to use "docker compose"
+# https://www.composerize.com/
+# we also avoid passing explicit url with password inside an environment variable
 # here we use Docker secrets approach to provide secret.txt
+# this secret is then used to create a url dynamically
 name: webapp-composed-prod
 
 services:
@@ -21,32 +24,38 @@ services:
     build:
       context: ./webapp-db/
 
-  webapp-api:
-    container_name: webapp-api-prod
+  webapp-backend:
+    container_name: webapp-backend-prod
     networks:
       webapp-net:
         aliases:
           - api-node
-    env_file:
-      - ./webapp-db/.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=postgres
+      - PGUSER=postgres
+      - PGPASSWORD_FILE=/run/secrets/postgres-password
+    secrets:
+      - postgres-password
     ports:
       - 3000:3000
-    image: webapp-api:1.0prod
+    image: webapp-backend:1.0prod
     depends_on:
       - webapp-db
     build:
       context: ./api-node/
       target: prod
 
-  webapp-client:
-    container_name: webapp-client-prod
+  webapp-frontend:
+    container_name: webapp-frontend-prod
     networks:
       webapp-net:
         aliases:
           - client-react
     ports:
       - 8080:8080
-    image: webapp-client:1.0prod
+    image: webapp-frontend:1.0prod
     build:
       context: ./client-react/
       target: prod

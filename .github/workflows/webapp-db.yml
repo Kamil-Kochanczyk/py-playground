@@ -1,4 +1,4 @@
-name: webapp-cicd
+name: webapp-db-cicd
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         uses: docker/metadata-action@v6.0.0
         with:
           images: |
-            tuilindo05/docker-playground
+            tuilindo05/dockercourse-postgres
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -37,16 +37,16 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v7.0.0
         with:
-          file: ./webapp/api-node/Dockerfile
-          context: ./webapp/api-node/
-          target: prod
+          file: ./webapp/webapp-db/Dockerfile
+          context: ./webapp/webapp-db/
+          # target: prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'tuilindo05/docker-playground:latest'
+          image-ref: 'tuilindo05/dockercourse-postgres:latest'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true

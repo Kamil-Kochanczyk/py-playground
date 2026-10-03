@@ -17,7 +17,7 @@ services:
       - postgres-password
     ports:
       - 5432:5432
-    image: 'tuilindo05/dockercourse-postgres:20261003-7e67f97'
+    image: 'tuilindo05/dockercourse-postgres:1.0'
     deploy:
       mode: replicated
       replicas: 1
@@ -46,7 +46,7 @@ services:
       - postgres-password
     ports:
       - 3000:3000
-    image: 'tuilindo05/dockercourse-api-node:20261003-1114d47'
+    image: 'tuilindo05/dockercourse-api-node:1.0'
     deploy:
       mode: replicated
       replicas: 3
@@ -71,7 +71,7 @@ services:
           - client-react
     ports:
       - 8080:8080
-    image: 'tuilindo05/dockercourse-client-react:20261003-1114d47'
+    image: 'tuilindo05/dockercourse-client-react:1.0'
     deploy:
       mode: replicated
       replicas: 2

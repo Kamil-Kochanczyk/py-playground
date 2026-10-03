@@ -51,6 +51,7 @@
 - `docker stack services <stack_name>` - view active services and replica count in the given stack
 - `docker stack rm <stack_name>` - remove the stack along with all its containers, networks, services, tasks, etc.
 - `docker service ps <stack_name>_<service_name>` - view exact container tasks running across nodes
+- `docker service logs <stack_name>_<service_name>` - view logs of the given service
 - `docker service scale <stack_name>_<service_name>=<how_many_replicas>` - manage the number of replicas of a given service
 - `docker secret create <secret_name> <file_name>` - create a swarm secret based on the contents of the file
   - if the file is not provided, you can use pipes and `-` instead of a file to provide secret content to the command, e.g. `echo "my_secret" | docker secret create my_swarm_secret -`

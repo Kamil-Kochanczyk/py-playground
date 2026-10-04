@@ -9,6 +9,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "aiohttp>=3.14.3",
     "pydantic-settings>=2.15.0",
     "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
@@ -16,7 +17,8 @@ dependencies = [
 ]
 license = "MIT"
 license-files = ["LICENSE", "AUTHORS"]
-classifiers = ["Programming Language :: Python :: 3.12", "Private :: Do Not Upload"]
+# classifiers = ["Programming Language :: Python :: 3.12", "Private :: Do Not Upload"]
+classifiers = ["Programming Language :: Python :: 3.12", "Operating System :: OS Independent"]
 
 [project.scripts]
 exp-track-cli = "py_playground.expense_tracker.main:main"
@@ -38,11 +40,11 @@ nonlocal-gui = "py_playground.other.nonlocalexample:main"
 runval-gui = "py_playground.other.runtimevalidation:main"
 
 [project.urls]
-Homepage = "https://google.com"
-Documentation = "https://google.com"
-Repository = "https://google.com"
-Issues = "https://google.com"
-Changelog = "https://google.com"
+Homepage = "https://github.com/Kamil-Kochanczyk/py-playground"
+Documentation = "https://github.com/Kamil-Kochanczyk/py-playground/tree/master/docs"
+Repository = "https://github.com/Kamil-Kochanczyk/py-playground"
+Issues = "https://github.com/Kamil-Kochanczyk/py-playground/issues"
+Changelog = "https://github.com/Kamil-Kochanczyk/py-playground/releases "
 
 [project.optional-dependencies]
 ds = [

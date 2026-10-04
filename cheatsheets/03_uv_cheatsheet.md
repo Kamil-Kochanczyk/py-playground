@@ -106,3 +106,27 @@ Budowanie source distribution (tar.gz) oraz built distribution (.whl):
 ```bash
 uv build
 ```
+
+Zarządzanie wersją (np. aktualizacja wersji):
+```bash
+uv version --bump (major | minor | patch | alpha | beta | rc | stable | ...)
+```
+
+Publikowanie paczki do TestPyPI (przed publikacją należy ustawić tymczasową zmienną środowiskową `UV_PUBLISH_TOKEN` tak żeby miała przypisany token (API Token wygenerowany w TestPyPI) używany do uwierzytelnienia tożsamości, taka zmienna środowiskowa powinna znikać wraz z zamknięciem danej sesji używanej konsoli):
+
+```bash
+# --dry-run symuluje wynik operacji
+uv publish --index <tool_uv_index_name> [--dry-run]
+```
+
+Przetestuj paczkę z TestPyPI (komenda ta tworzy efemeryczne (tymczasowe) środowisko do uruchomienia programu, a zainstalowane dependencje są instalowane w pamięci cache uv):
+
+```bash
+uv run --with "py-playground-1086kamil[ds,plots]==0.2.0rc1" --refresh-package py-playground-1086kamil --default-index https://pypi.org/simple/ --index https://test.pypi.org/simple/ --index-strategy unsafe-best-match --no-project -- python -c "from py_playground.expense_tracker.main import main; main()"
+
+# --index-strategy unsafe-best-match znajduje najlepsze dopasowanie zależności, zamiast ograniczać się tylko do pierwszej znalezionej, która może być zbyt przedawnioną wersją
+
+# po tej komendzie może być potrzeba wyczyszczenia pamięci cache
+uv cache dir
+uv cache clean
+```

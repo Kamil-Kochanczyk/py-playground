@@ -145,7 +145,7 @@ A professional README should usually help users answer five key questions quickl
 
 # Example web app
 
-Apart from expense tracker this project also contains a simple web app included here for learning basic Docker and GitHub Actions concepts.
+Apart from expense tracker and other educational programs this project also contains a simple web app. It's been included in the project with the goal of learning basic Docker and GitHub Actions concepts. Since this web app is outside the main src directory and is considered to be a standalone, separate subproject within this bigger Python project, it's not meant to be included in any Python packages or Python containers.
 
 The original source code of the web app can be found here: https://github.com/sidpalas/devops-directive-docker-course.
 

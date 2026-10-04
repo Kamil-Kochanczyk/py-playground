@@ -1,6 +1,6 @@
 [project]
-name = "py-playground"
-version = "0.1.0"
+name = "py-playground-1086kamil"
+version = "0.3.0"
 keywords = ["learning", "tutorial", "educational"]
 description = "Project created to learn various concepts and have fun with Python."
 readme = "README.md"
@@ -59,6 +59,10 @@ plots = [
 [build-system]
 requires = ["uv_build>=0.12.8,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# make sure UV looks for "py_playground" subdir even when the name of the project is different
+module-name = "py_playground"
 
 [[tool.uv.index]]
 name = "testpypi"

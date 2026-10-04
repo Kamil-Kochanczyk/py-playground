@@ -13,12 +13,8 @@ wheels/
 .env
 
 # Secrets
-<<<<<<< HEAD
-var/run/
-=======
 var/run
-**/secret.txt
->>>>>>> e87bb33 (Add webapp and an example workflow)
+**/*secret*.txt
 
 # Logs
 *.log*

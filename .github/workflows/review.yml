@@ -1,0 +1,94 @@
+name: Review (lint, format, typecheck) and test Python package
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  # workflow_dispatch enables manually running the workflow with a button in GitHub
+  workflow_dispatch:
+
+# limit GITHUB_TOKEN's permissions
+# least-privilege principle: grant a workflow only the access it needs
+permissions:
+  contents: read
+
+jobs:
+
+  review:
+    name: Lint and format with Ruff, typecheck with Mypy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+
+      # normal dependencies + dev dependency group + docs dependency group + optional dependencies
+      - name: Install the project
+        run: uv sync --locked --all-groups --all-extras
+
+      - name: Lint and format with Ruff
+        run: |
+          uv run ruff check . --output-format=github
+          uv run ruff format --check .
+
+      - name: Typecheck with Mypy
+        run: uv run mypy .
+
+  test:
+    name: Test
+    needs:
+      - review    
+    runs-on: ubuntu-latest
+    # matrix strategy lets you use variables in a single job definition to automatically create multiple job runs that are based on the combinations of the variables
+    # for example, you can use a matrix strategy to test your code in multiple versions of a language or on multiple operating systems
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          # python-version-file: ".python-version"
+          # python-version-file: "pyproject.toml"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+          # python-version: $={{ matrix.python-version }}
+
+      # normal dependencies + dev dependency group + docs dependency group + optional dependencies
+      - name: Install the project
+        run: uv sync --python "${{ matrix.python-version }}" --locked --all-groups --all-extras
+
+      - name: Test with Pytest
+        run: |
+          uv run pytest --cov=src/py_playground/expense_tracker --cov-report=html --cov-branch
+
+      # prevent discarding the coverage report when the job ends
+      # upload it as an artifact for later inspection
+      - name: Upload coverage report
+        if: always() && matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: coverage-html-${{ matrix.python-version }}
+          path: htmlcov/
+          if-no-files-found: warn

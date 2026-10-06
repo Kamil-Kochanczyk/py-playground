@@ -1,0 +1,16 @@
+# Dependabot is an automated tool built into GitHub that helps keep software dependencies safe and up to date
+# it can check dependencies for Python packages, GitHub Actions published on the marketplace, and many other ecosystems
+# with this config it will scan and check the repo once a week to see if there are any updates that can be made to dependencies or workflows
+# it will create a PR with a fix automatically
+# these PRs from Dependabot will also run the other workflows to make sure that Dependabot’s changes pass other checks
+
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly

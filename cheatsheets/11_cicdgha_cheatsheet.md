@@ -56,6 +56,28 @@ By default, all jobs in a GitHub Actions workflow run simultaneously. When you a
 > * If you want a dependent job to run even if its prerequisite fails, you must combine needs with an `always()` conditional check: `needs: build; if: always() # Runs even if 'build' fails`
 > * The `needs` context only contains outputs from your direct dependencies. If Job C `needs` Job B, and Job B `needs` Job A, Job C cannot directly read outputs from Job A unless you explicitly add Job A to C's `needs` array. 
 
+## Common use cases
+
+### 1. Automated Testing
+
+Every time you push code or open a Pull Request, GitHub Actions can run your test suite (`pytest` or `unittest`). If a test fails, GitHub marks the commit with a red "X" and blocks merging until it's fixed. Even though you can (and should!) perform tests locally on your machine before applying new changes to your remote repo, performing tests in clean (fresh) virtual machines within GitHub Actions can help you catch bugs that are "hidden" in your local machine due to specific configuration of your machine, your stored cache, or your current operating system. Moreover, automated testing speeds up code reviews because reviewers don't have to manually verify on their local machines that all tests pass after your changes are applied to the codebase. You can also easily perform tests for multiple Python versions and/or multiple operating systems which would be quite troublesome to set up and run locally without GitHub Actions.
+
+### 2. Code Linting and Formatting
+
+Instead of manually checking code style, you can run automatically tools like **Ruff** to flag formatting errors, unused imports, or bad syntax and let other developers now that your proposed changes adhere to the correct style and are of good quality.
+
+### 3. Scheduled Automation (Cron Jobs)
+
+If you write a Python script that scrapes a website, fetches stock prices, or sends a daily email digest, you don't need a dedicated server running 24/7. GitHub Actions can execute your script on a schedule (e.g., every morning at 8:00 AM) completely for free within generous usage limits.
+
+### 4. Deploying Web Applications
+
+When you push new code to your main branch, a worfklow can automatically build and deploy your app to cloud hosting platforms like AWS, Google Cloud, Heroku, or Render.
+
+### 5. Publishing Packages
+
+If you build a reusable Python library, workflows can handle building the artifact files and publishing them to PyPI whenever you release a new version tag.
+
 ## Example scenarios
 
 * Docker

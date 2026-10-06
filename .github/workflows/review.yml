@@ -45,6 +45,7 @@ jobs:
           uv run ruff format --check .
 
       - name: Typecheck with Mypy
+        if: always()
         run: uv run mypy .
 
   test:

@@ -45,12 +45,13 @@ jobs:
           uv run ruff format --check .
 
       - name: Typecheck with Mypy
+        if: always()
         run: uv run mypy .
 
   test:
     name: Test
-    needs:
-      - review    
+    # needs:
+      # - review
     runs-on: ubuntu-latest
     # matrix strategy lets you use variables in a single job definition to automatically create multiple job runs that are based on the combinations of the variables
     # for example, you can use a matrix strategy to test your code in multiple versions of a language or on multiple operating systems

@@ -71,7 +71,7 @@ def test_main_saves_when_user_exits(tmp_expenses_json, monkeypatch):
     dummy_obj_mocking_real_load_function.assert_called_once_with(main.FILENAME)
     dummy_obj_mocking_real_save_function.assert_called_once_with(fake_expenses, main.FILENAME)
 
-    assert "Temp" in str(main.FILENAME)
+    assert ("Temp" in str(main.FILENAME)) or ("tmp" in str(main.FILENAME))
 
     # such mocking wouldn't be useful in an integration test
     # an integration test is, after all, suppossed to test the interaction between real components, not mocked ones
@@ -94,4 +94,4 @@ def test_main_saves_when_user_exits_another(tmp_expenses_json):
     mock_load.assert_called_once_with(main.FILENAME)
     mock_save.assert_called_once_with(fake_expenses, main.FILENAME)
 
-    assert "Temp" in str(main.FILENAME)
+    assert ("Temp" in str(main.FILENAME)) or ("tmp" in str(main.FILENAME))

@@ -1,22 +1,104 @@
-name: Publish to TestPyPI
+name: Publish Python package to TestPyPI
 
 on:
   push:
     tags:
-    - 'v*.*.*'
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+[ab][0-9]+"
+
+# split the workflow into two jobs: bulid and publish
+# this reduces surface attack area (publish job has access to publish credentials, build job doesn't)
 
 jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      # - name: Setup Python
+      #   uses: actions/setup-python@v7.0.0
+      #   with:
+      #     python-version-file: ".python-version"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: false
+
+      - name: Build
+        run: uv build
+
+      # here you can also perform optional smoke tests on created distributions (sdist and wheel)
+      # let's skip it for now
+      # - name: Smoke test
+      #   run : ...
+
+      # by default, jobs in GitHub Actions run in isolated virtual environments
+      # so if Job A builds an app, it must upload the binary as an artifact so Job B can later download and use it
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: dist
+          path: dist/
+
   publish:
+    # wait for the previous job to finish successfully before starting this one
+    # without waiting, the jobs would run in parallel
+    needs:
+      - build
     runs-on: ubuntu-latest
     environment:
       name: production
       url: https://test.pypi.org/project/py-playground-1086kamil/
     permissions:
       id-token: write
+      contents: write
+
     steps:
-      - uses: actions/checkout@v6
-      - uses: astral-sh/setup-uv@v10.1.0
+      - name: Install UV
+        uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: false
-      - run: uv build
-      - run: uv publish --index testpypi --trusted-publishing always
+
+      # download the previously uploaded artifact
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v8.0.0
+        with:
+          name: dist
+          path: dist/
+
+      # attestation are optional but recommended
+      # default path to find the attestations is "dist/*" so no need to write it here
+      - name: Generate PEP 740 attestations
+        uses: astral-sh/attest-action@v0.0.6
+
+      - name: Publish
+        run: uv publish --index testpypi --trusted-publishing always
+
+      # GitHub creates a read-only token in the secrets context by default
+      # this means that you always have access to it if you need it
+      # in addition, every GitHub runner includes the handy GitHub CLI by default
+      # this makes performing certain tasks, like creating a release, simpler
+      # GITHUB_TOKEN is used here to authenticate the user to access GitHub CLI and create a release
+      # env persists only for this step
+      # use env to pass the token to GitHub CLI as GitHub CLI can't access secrets on its own
+      # check if release tag ends with rc, a or b followed by digits
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if [[ "$RELEASE_TAG" =~ (rc|a|b)[0-9]+$ ]]; then
+            gh release create "$RELEASE_TAG" ./dist/* --generate-notes --prerelease
+          else
+            gh release create "$RELEASE_TAG" ./dist/* --generate-notes
+          fi

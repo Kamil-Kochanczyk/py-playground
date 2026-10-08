@@ -50,9 +50,9 @@ jobs:
             ${{ steps.meta.outputs.tags }}
             tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }}
           # try to reuse Docker build layers saved in GitHub Actions' cache (cache is scoped to the repo), avoiding repeated work
-          cache-from: type=gha
+          # cache-from: type=gha
           # save this build's layers to that cache, cache both intermediate and final layers, speeding up future builds
-          cache-to: type=gha,mode=max
+          # cache-to: type=gha,mode=max
 
       # enable stricter behavior in Bash scripts:
       # -euo pipefail = -e -u -o pipefail

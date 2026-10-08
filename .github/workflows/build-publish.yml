@@ -37,6 +37,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ github.ref_name }},match=v(.*)
             type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
       - name: Build image for smoke tests
         uses: docker/build-push-action@v7.0.0
         with:
@@ -49,6 +52,10 @@ jobs:
           tags: |
             ${{ steps.meta.outputs.tags }}
             tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }}
+          # try to reuse Docker build layers saved in GitHub Actions' cache (cache is scoped to the repo), avoiding repeated work
+          cache-from: type=gha
+          # save this build's layers to that cache, cache both intermediate and final layers, speeding up future builds
+          cache-to: type=gha,mode=max
 
       # enable stricter behavior in Bash scripts:
       # -euo pipefail = -e -u -o pipefail

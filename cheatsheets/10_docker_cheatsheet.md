@@ -23,7 +23,9 @@
 - `docker start <container_name>` - start the specified stopped container
 - `docker stop <container_name>` - stop the specified running container
 - `docker attach <container_name>` - attach STDIN, STDOUT and STDERR to the given container, in practice it opens the container's pseudo terminal
-- `docker build -t <image_name> [-f <dockerfile_name>] [--target=<stage_name>] [--secret id=<build_time_secret_id>,src=<local_path_to_secret>] <directory with Dockerfile inside, or some other build context>` - perform building, i.e. create an image from a Dockerfile and a set of project files known as the build context
+- `docker build -t <image_name> [-f <dockerfile_name>] [--target=<stage_name>] [--secret id=<build_time_secret_id>,src=<local_path_to_secret>] [--pull] [--no-cache] <directory with Dockerfile inside, or some other build context>` - perform building, i.e. create an image from a Dockerfile and a set of project files known as the build context
+  - `--pull` forces Docker to check for and download a newer version of the base image even if there is already a version cached locally, this can be useful because a specific image tag can change the digest it points to over time as the developers update their images with patches, fixes, etc.
+  - `--no-cache` disables the build cache and forces Docker to rebuild the image layer by layer from scratch, this allows to get fresh dependencies but not fresh base images
 - `docker volume create <volume_name>` - create a new volume for storing persisting data
 - `docker login` - login
   - required before pushing an image to a registry

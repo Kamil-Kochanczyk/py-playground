@@ -33,7 +33,7 @@ Usunięcie zależności:
 uv remove <package1> <package2> ... <packageN>
 ```
 
-Zsynchronizowanie zależności z plikiem `pyproject.toml`, plikiem `uv.lock` i ogólnie całym środowiskiem:
+Zsynchronizowanie zainstalowanych zależności z plikiem `pyproject.toml`, plikiem `uv.lock` i ogólnie całym środowiskiem (instalowanie nowych zależości, usuwanie niepotrzebnych zależności, itp.) (ta komenda automatycznie dokonuje `uv lock`, gdy widzi, że nie zgadza się z `pyproject.toml`):
 ```bash
 # normal dependencies + dev dependency group
 uv sync
@@ -96,7 +96,7 @@ Zarządzanie wersjami Pythona:
 uv python (install | pin | list | ...)
 ```
 
-Rozwiązaywanie zależności (resolving dependencies) do pliku `uv.lock`:
+Rozwiązaywanie zależności (resolving dependencies) na podstawie pliku `pyproject.toml` do pliku `uv.lock` (ta komenda nie instaluje zależności do wirtualnego środowiska `.venv`):
 
 ```bash
 uv lock

@@ -1,0 +1,22 @@
+# named volume 'expenses' is marked as "external" (used by service "py-playground")
+# either remove "external" from volume definition or it needs to be created using "docker volume create expenses"
+
+name: py-playground-package
+services:
+  py-playground:
+    stdin_open: true
+    tty: true
+    volumes:
+      - expenses:/app/src/py_playground/expense_tracker/data
+    image: py-playground
+    build:
+      context: .
+      target: runtime
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: src/
+volumes:
+  expenses:
+    external: true
+    name: expenses

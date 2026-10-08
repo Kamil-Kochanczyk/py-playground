@@ -1,0 +1,41 @@
+# Git and editor metadata
+.git
+.gitignore
+.github
+.vscode
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Build and distribution output
+build/
+dist/
+*.egg-info/
+
+# Documentation and local project data
+site/
+sphinx_docs_test/_build/
+*.log
+.env
+.env.*
+!.env.example
+
+# Docker files are not needed inside the build context except the build inputs
+Dockerfile*
+docker-compose*.yml
+compose*.yml
+docker-stack*.yml
+
+# Other
+src/py_playground/expense_tracker/data
+cheatsheets/
+var/
+webapp/

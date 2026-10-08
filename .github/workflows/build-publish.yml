@@ -1,4 +1,4 @@
-name: Publish Python package to TestPyPI
+name: Build and publish Python package to TestPyPI and DockerHub
 
 on:
   push:
@@ -13,7 +13,90 @@ on:
 
 jobs:
 
+  publish-dockerhub:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v6.0.0
+        with:
+          images: |
+            tuilindo05/py-playground-tuilindo05
+          tags: |
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}},value=${{ github.ref_name }},match=v(.*)
+            type=semver,pattern={{major}}.{{minor}},value=${{ github.ref_name }},match=v(.*)
+            type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
+
+      - name: Build image for smoke tests
+        uses: docker/build-push-action@v7.0.0
+        with:
+          file: ./Dockerfile
+          context: ./
+          target: runtime
+          # load the image into the runner's local Docker Engine
+          load: true
+          push: false
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }}
+          # try to reuse Docker build layers saved in GitHub Actions' cache (cache is scoped to the repo), avoiding repeated work
+          cache-from: type=gha
+          # save this build's layers to that cache, cache both intermediate and final layers, speeding up future builds
+          cache-to: type=gha,mode=max
+
+      # enable stricter behavior in Bash scripts:
+      # -euo pipefail = -e -u -o pipefail
+      # -e = stop the script when the command fails
+      # -u = treat an unset variable as an error
+      # -o pipefail = make a pipeline fail if any command in it fails, not only the last one
+      - name: Smoke test image
+        run: |
+          set -euo pipefail
+          printf '7\n' | docker run --rm -i tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }}
+          docker run --rm tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }} \
+            python -c 'import py_playground; print("import smoke test passed")'
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'tuilindo05/py-playground-tuilindo05:smoke-${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  
+      # <<< "$TAGS" feeds the multiline tag list into the while loop
+      # the loop read one tag per line, skips blank lines and runs push for each remaining tag
+      # note that local smoke-sha tag is not included in this step
+      - name: Push Docker image
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r tag; do
+            [ -z "$tag" ] || docker push "$tag"
+          done <<< "$TAGS"
+
   build:
+    needs:
+      - publish-dockerhub
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -50,7 +133,7 @@ jobs:
           name: dist
           path: dist/
 
-  publish:
+  publish-testpypi:
     # wait for the previous job to finish successfully before starting this one
     # without waiting, the jobs would run in parallel
     needs:
@@ -95,7 +178,6 @@ jobs:
       # env persists only for this step
       # use env to pass the token to GitHub CLI as GitHub CLI can't access secrets on its own
       # check if release tag ends with rc, a or b followed by digits
-
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

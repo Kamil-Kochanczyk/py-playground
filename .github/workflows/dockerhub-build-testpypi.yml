@@ -32,10 +32,7 @@ jobs:
             tuilindo05/py-playground-tuilindo05
           tags: |
             type=raw,value=latest,enable=${{ !contains(github.ref_name, 'a') && !contains(github.ref_name, 'b') && !contains(github.ref_name, 'rc') }}
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}},value=${{ github.ref_name }},match=v(.*)
-            type=semver,pattern={{major}}.{{minor}},value=${{ github.ref_name }},match=v(.*)
+            type=raw,value=${{ github.ref_name }}
             type=raw,value={{date 'YYYYMMDD'}}-{{sha}}
 
       - name: Set up Docker Buildx

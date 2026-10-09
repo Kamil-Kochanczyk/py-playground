@@ -832,3 +832,30 @@ In real software development, you often need to release a critical hotfix to pro
 | **2. Apply Fix** | Fix the bug, `git add .`, `git commit -m "Fix: Critical crash"` | Resolves the issue on the isolated hotfix branch. |
 | **3. Tag Hotfix** | `git tag -a v1.0.1 -m "Hotfix release v1.0.1"` | Creates the new patch version tag. |
 | **4. Deploy & Merge** | `git push origin v1.0.1`, `git checkout main`, `git merge hotfix-v1.0.1` | Deploys the fix and backports changes to main line. |
+
+# Hooks
+
+**Hooks** are custom scripts which fire off when certain important actions occur.
+
+**Pre-commit hooks** are automated scripts that execute every time you run `git commit`, right before Git saves your changes. If any hook checks fail—such as an unformatted file, a trailing space, or a syntax error—Git cancels the commit so you can fix the issue locally before pushing code to your repo.
+
+While Git natively supports custom shell scripts inside `.git/hooks/`, managing them across multiple developer machines is tricky. The Python ecosystem solves this with **`pre-commit`**, a multi-language package manager dedicated to configuring, installing, and running hooks via a simple YAML config file, `.pre-commit-config.yaml`.
+
+When you run the `pre-commit install` command, it writes a small script into your repository's hidden `.git/hooks/pre-commit` file.
+
+Once that script is in place:
+
+* Git automatically triggers `pre-commit` every single time you execute `git commit`.
+* It automatically creates and manages isolated environments for all the tools (like Ruff) listed in your `.pre-commit-config.yaml`.
+
+| Scenario | What to Run | Why |
+| --- | --- | --- |
+| **Cloning a repo to a new machine/folder** | `pre-commit install` | `.git/hooks/` is ignored by Git, so each clone/developer needs to link it once. |
+| **Edited `.pre-commit-config.yaml`** | *Nothing!* | Pre-commit detects changes and downloads new hook environments automatically on your next `git commit`. |
+| **Updating hooks to newer versions** | `pre-commit autoupdate` | Updates the `rev:` tags in `.pre-commit-config.yaml` to the latest releases. |
+| **Testing hooks without committing** | `pre-commit run --all-files` | Manually runs all hooks across the whole codebase immediately. |
+
+To skip hooks temporarily during a certain commit, run `git commit -m "Message" --no-verify`.
+
+> [!TIP]
+> The best use case for pre-commit hooks is **detecting secrets** so that they are never leaked into the public repo upon committing new changes.

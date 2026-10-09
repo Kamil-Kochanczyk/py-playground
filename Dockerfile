@@ -2,7 +2,7 @@
 
 # pin the base image to a specific digest
 # instead you can also use unpinned version
-# or configure Dependabot with "package-ecosystem: "docker""" to do automatic updates
+# or configure Dependabot with "package-ecosystem: "docker"" to do automatic updates
 FROM python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9226b6800b0d6f AS builder
 
 # copy uv without installing it into the final image
@@ -10,7 +10,7 @@ FROM python:3.12-slim@sha256:05cda9777409a9c3ffddd94a4c476b79f0769a0b4857f0c7ed9
 COPY --from=ghcr.io/astral-sh/uv:0.12.8@sha256:d1cbaeadc234fe19c0d93daabcf5e98738cd93c6d1dd4918ef6aa30735feb23a /uv /uvx /usr/local/bin/
 
 # config:
-# - compile bytecode (.pyc) upon installation instead of on the first run (speeds up initial run)
+# - compile bytecode (.pyc) upon installation instead of upon the first run (speeds up initial run)
 # - perform a full, physical copy of installed packages from uv's global cache into Python's virtual environment (by default, hardlink or reflink mechanism is used)
 # - point to the venv directory to setup default, active venv inside the project
 # - add the venv directory to the beginning of the PATH env var to use venv's Python and venv's packages by default
@@ -27,8 +27,8 @@ COPY pyproject.toml uv.lock README.md LICENSE AUTHORS ./
 
 # make sure "uv sync" doesn't change uv.lock with "uv lock"
 # also make sure that it only installs third-party dependencies into venv and doesn't install the project itself
-# this is because your project can also be package itself and uv can also install it into venv
-# if you install the project itself in this step with all third-party dependencies,
+# this is because your project itself can also be a package and uv can also install it into venv
+# if you installed the project itself in this step with all third-party dependencies,
 # the smallest changes to the source code of your project would invalidate this layer in the cache
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
     uv sync --frozen --no-dev --no-install-project

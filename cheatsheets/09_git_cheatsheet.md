@@ -884,6 +884,7 @@ Workflow:
   * `detect-secrets` will allow you to commit changes as long as during pre-commit hook it doesn't detect any NEW real secrets being leaked, i.e. any NEW secrets not currently stored in the `.secrets.baseline`
   * this allows the pre-commit hook to focus on detecting NEW secrets while the known ones are already recorded and stored in the `.secrets.baseline`
   * *this way, you create a separation of concern: accepting that there may currently be secrets hiding in your large repository (this is what we refer to as a baseline), but preventing this issue from getting any larger, without dealing with the potentially gargantuan effort of moving existing secrets away*
+  * this also prevents `detect-secrets` from complaining about false-positives on every commit
 * take care of each real secret stored in the `.secrets.baseline` file when you have time and possibility to do so
   * candidates marked by you as real secrets in the audit need to be taken care of eventually
   * for example, you choose one real secret entry from the `.secrets.baseline` and check in which file it is exposed, you open that file and remove the secret from that file and perform secret rotation to immediately invalidate that previously exposed secret

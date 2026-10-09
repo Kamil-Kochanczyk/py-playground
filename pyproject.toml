@@ -74,6 +74,7 @@ explicit = true
 # building, testing, linting, formatting, documenting
 # build, pytest, ruff, mypy, mkdocs, pre-commit, etc. go here
 dev = [
+    "detect-secrets>=1.5.0",
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",

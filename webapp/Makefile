@@ -144,11 +144,11 @@ down-webapp-test:
 # The backend and the frontend can of course be dockerized and this is actually the recommended approach
 
 # If using this approach, set url in .env file to the following:
-# DATABASE_URL=postgres://postgres:apfff@host.docker.internal:5432/postgres
+# DATABASE_URL=postgres://postgres:<example_password_here>@host.docker.internal:5432/postgres
 # If using this approach, set target in vite.config.js file to the following:
 # target: 'http://host.docker.internal:3000'
 
-# Note that normally you shouldn't put a URL with password inside a Makefile that is committed
+# Note that normally you shouldn't put a URL with password inside a file that is committed to a version control system
 
 # POSTGRES_PSWD_FILE:=/run/secrets/postgres-password
 

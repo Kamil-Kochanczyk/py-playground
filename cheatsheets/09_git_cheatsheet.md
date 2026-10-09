@@ -859,3 +859,36 @@ To skip hooks temporarily during a certain commit, run `git commit -m "Message" 
 
 > [!TIP]
 > The best use case for pre-commit hooks is **detecting secrets** so that they are never leaked into the public repo upon committing new changes.
+
+## Bonus: `detect-secrets`
+
+An example tool to use as a pre-commit hook for detecting leaked secrets is the `detect-secrets` package. It blocks the commit if it detects that a potential secret might be exposed in the commit. It also provides a few other useful utilities.
+
+Workflow:
+
+* `detect-secrets scan > .secrets.baseline`
+  * creates the `.secrets.baseline` file
+  * this file stores the results of the scan that `detect-secrets` performs on the currently tracked files (files exposed to the version control system) to find all potential secrets that might be exposed/leaked in those files
+  * this file contains candidates that `detect-secrets` found and considers them to be real secrets which shouldn't be exposed
+* `detect-secrets audit .secrets.baseline`
+  * audit each candidate in the `.secrets.baseline` found in the previous step
+  * `detect-secrets` might incorrectly mark some non-secrets as real secrets so you have to manually approve each candidate that `detect-secrets` found
+  * do it one-by-one by marking each candidate manually as either the true secret or as the false-positive
+  * for example:
+    * initial scan -> 10 potential secrets found
+    * after manual audit -> 7 entries marked as false-positives and 3 entries marked as real secrets
+* commit the `.secrets.baseline` to the version control system
+  * committing this file allows every team member to see the current state of the repo, i.e. what things are considered to be potential secrets, how many among those are false-positives and how many among those are real secrets which are really exposed and need to be taken care of (e.g. by secret rotation)
+* perform other work and commit it
+  * don't forget to have `detect-secrets` set up as the pre-commit hook
+  * `detect-secrets` will allow you to commit changes as long as during pre-commit hook it doesn't detect any NEW real secrets being leaked, i.e. any NEW secrets not currently stored in the `.secrets.baseline`
+  * this allows the pre-commit hook to focus on detecting NEW secrets while the known ones are already recorded and stored in the `.secrets.baseline`
+  * *this way, you create a separation of concern: accepting that there may currently be secrets hiding in your large repository (this is what we refer to as a baseline), but preventing this issue from getting any larger, without dealing with the potentially gargantuan effort of moving existing secrets away*
+* take care of each real secret stored in the `.secrets.baseline` file when you have time and possibility to do so
+  * candidates marked by you as real secrets in the audit need to be taken care of eventually
+  * for example, you choose one real secret entry from the `.secrets.baseline` and check in which file it is exposed, you open that file and remove the secret from that file and perform secret rotation to immediately invalidate that previously exposed secret
+* `detect-secrets scan --baseline .secrets.baseline`, `detect-secrets audit .secrets.baseline`
+  * after taking care of some of the real secrets, update the `.secrets.baseline` so that it reflects your updates
+* commit the updated `.secrets.baseline` again
+  * this way other team members will know that some real secrets have been taken care of and will see which still remain
+* and so on...

@@ -31,7 +31,7 @@ COPY pyproject.toml uv.lock README.md LICENSE AUTHORS ./
 # if you install the project itself in this step with all third-party dependencies,
 # the smallest changes to the source code of your project would invalidate this layer in the cache
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
-    uv sync --frozen --no-install-project
+    uv sync --frozen --no-dev --no-install-project
 
 # ...then source code
 COPY src/ ./src/

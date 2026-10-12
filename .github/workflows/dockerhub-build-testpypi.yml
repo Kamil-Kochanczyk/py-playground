@@ -133,7 +133,7 @@ jobs:
       # by default, jobs in GitHub Actions run in isolated virtual environments
       # so if Job A builds an app, it must upload the binary as an artifact so Job B can later download and use it
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: dist
           path: dist/

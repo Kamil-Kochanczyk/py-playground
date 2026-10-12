@@ -88,7 +88,7 @@ jobs:
       # upload it as an artifact for later inspection
       - name: Upload coverage report
         if: always() && matrix.python-version == '3.12'
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-html-${{ matrix.python-version }}
           path: htmlcov/

@@ -295,7 +295,7 @@ class LockSharedState[T](NamedTuple):
 
 async def job_producer(
     producer_id: int,
-    queue: asyncio.Queue[tuple[int, float]],
+    queue: asyncio.Queue[tuple[int | None, float | None]],
     num_jobs: int,
     lss_job_ids: LockSharedState[int],
     lss_job_times: LockSharedState[float],
@@ -317,13 +317,13 @@ async def job_producer(
     print(f"Producer {producer_id} produced all its jobs and quits")
 
 
-async def job_consumer(consumer_id: int, queue: asyncio.Queue[tuple[int, float]]) -> None:
+async def job_consumer(consumer_id: int, queue: asyncio.Queue[tuple[int | None, float | None]]) -> None:
     while True:
         try:
             job_id, job_time = await queue.get()
             try:
                 print(f"Consumer {consumer_id} starts working on job {job_id}, expected job time is {job_time:.2f}s")
-                await process_job(job_id, job_time)
+                await process_job(job_id, job_time)  # type: ignore[]
                 print(f"Consumer {consumer_id} finished working on job {job_id}")
             except RuntimeError as exc:
                 print(f"Consumer {consumer_id} failed job {job_id}, message is '{exc!r}'")
@@ -334,6 +334,25 @@ async def job_consumer(consumer_id: int, queue: asyncio.Queue[tuple[int, float]]
             raise
         finally:
             print(f"Consumer {consumer_id} cleans up...")
+
+
+# alternative version where instead of cancellation sentinel values are used to terminate the consumers
+# async def job_consumer(consumer_id: int, queue: asyncio.Queue[tuple[int | None, float | None]]) -> None:
+#     while True:
+#         job_id, job_time = await queue.get()
+
+#         try:
+#             if job_id is None and job_time is None:
+#                 print(f"Consumer {consumer_id} got a sentinel value, breaking...")
+#                 break
+
+#             print(f"Consumer {consumer_id} starts working on job {job_id}, expected job time is {job_time:.2f}s")
+#             await process_job(job_id, job_time)  # type: ignore[]
+#             print(f"Consumer {consumer_id} finished working on job {job_id}")
+#         except RuntimeError as exc:
+#             print(f"Consumer {consumer_id} failed job {job_id}, message is '{exc!r}'")
+#         finally:
+#             queue.task_done()
 
 
 # endregion
@@ -574,7 +593,7 @@ class TodoClient:
 # endregion
 
 
-async def main() -> None:
+async def amain() -> None:
     # ============ Example 0 - Introduction ============
     await hello()
     await countdown(3)
@@ -731,7 +750,7 @@ async def main() -> None:
     # jobs_times = [random.uniform(0.5, 2.0) for _ in jobs]
 
     # # FIFO queue managed by one thread
-    # # which contantly switches between tasks and yields (awaits)
+    # # which constantly switches between tasks and yields (awaits)
     # # to see whether it can enqueue, dequeue or process an item in the queue
     # # this queue also stores _unfinished_tasks which can be used to mark when the work on the queue is done
     # queue_ex_8_1: asyncio.Queue[tuple[int, float]] = asyncio.Queue()
@@ -765,61 +784,67 @@ async def main() -> None:
 
     # ============ Example 8.2 - Queue 2 (producers + consumers) ============
 
-    # # test different cases, e.g. too slow producers or too slow consumers
-    # # note that in those cases the thread can become idle for pretty long times
-    # # it's best to find the balance so that the thread doesn't become idle for too long
+    # test different cases, e.g. too slow producers or too slow consumers
+    # note that in those cases the thread can become idle for pretty long times
+    # it's best to find the balance so that the thread doesn't become idle for too long
 
-    # total_str: Total = "total"
+    total_str: Total = "total"
 
-    # # used by producers to determine the id of a job based on the total number of dynamically generated jobs
-    # lock_job_ids = asyncio.Lock()
-    # shared_state_job_ids = {total_str: 0}
+    # used by producers to determine the id of a job based on the total number of dynamically generated jobs
+    lock_job_ids = asyncio.Lock()
+    shared_state_job_ids = {total_str: 0}
 
-    # # used to aggregate total job times as they are generated dynamically by producers
-    # lock_job_times = asyncio.Lock()
+    # used to aggregate total job times as they are generated dynamically by producers
+    lock_job_times = asyncio.Lock()
 
-    # # floats are immutable so passing floats to other functions creates a local copy
-    # # encapsulating a float with an object allows modyfying the float inside other functions
-    # shared_state_job_times = {total_str: 0.0}
+    # floats are immutable so passing floats to other functions creates a local copy
+    # encapsulating a float with an object allows modyfying the float inside other functions
+    shared_state_job_times = {total_str: 0.0}
 
-    # # prevent producers from putting too much work into the queue (backpressure threshold)
-    # queue: asyncio.Queue[tuple[int, float]] = asyncio.Queue(maxsize=5)
+    # prevent producers from putting too much work into the queue (backpressure threshold)
+    queue: asyncio.Queue[tuple[int | None, float | None]] = asyncio.Queue(maxsize=5)
 
-    # num_producers = 4
-    # producer_tasks = [
-    #     asyncio.create_task(
-    #         job_producer(
-    #             i,
-    #             queue,
-    #             5,
-    #             LockSharedState(lock=lock_job_ids, shared_state=shared_state_job_ids),
-    #             LockSharedState(lock=lock_job_times, shared_state=shared_state_job_times),
-    #         )
-    #     )
-    #     for i in range(1, num_producers + 1)
-    # ]
+    num_producers = 4
+    producer_tasks = [
+        asyncio.create_task(
+            job_producer(
+                i,
+                queue,
+                5,
+                LockSharedState(lock=lock_job_ids, shared_state=shared_state_job_ids),
+                LockSharedState(lock=lock_job_times, shared_state=shared_state_job_times),
+            )
+        )
+        for i in range(1, num_producers + 1)
+    ]
 
-    # num_consumers = 3
-    # consumer_tasks = [asyncio.create_task(job_consumer(i, queue)) for i in range(1, num_consumers + 1)]
+    num_consumers = 3
+    consumer_tasks = [asyncio.create_task(job_consumer(i, queue)) for i in range(1, num_consumers + 1)]
 
-    # # make sure you wait for the producers to finish producing all jobs
-    # # before waiting for all jobs to be done
-    # # otherwise queue might notify that all jobs have been done and quit while some producer is in the middle of creating another job
-    # await asyncio.gather(*producer_tasks)
+    # make sure you wait for the producers to finish producing all jobs
+    # before waiting for all jobs to be done
+    # otherwise queue might notify that all jobs have been done and quit while some producer is in the middle of creating another job
+    await asyncio.gather(*producer_tasks)
 
-    # # even though you waited for the producers, the consumers weren't idle
-    # # they were working concurrently with the producers
-    # # but now, after all job is put into the queue, the consumers surely won't skip any remaining jobs
+    # even though you waited for the producers, the consumers weren't idle
+    # they were working concurrently with the producers
+    # but now, after all job is put into the queue, the consumers surely won't skip any remaining jobs
+    await queue.join()
+
+    for consumer_task in consumer_tasks:
+        consumer_task.cancel()
+
+    consumer_cancellations = await asyncio.gather(*consumer_tasks, return_exceptions=True)
+    print(all(isinstance(res, asyncio.CancelledError) for res in consumer_cancellations))
+
+    # alternative version where sentinel values are passed into the queue to terminate consumers
+    # for _ in consumer_tasks:
+    #     await queue.put((None, None))
     # await queue.join()
+    # await asyncio.gather(*consumer_tasks)
 
-    # for consumer_task in consumer_tasks:
-    #     consumer_task.cancel()
-
-    # consumer_cancellations = await asyncio.gather(*consumer_tasks, return_exceptions=True)
-    # print(all(isinstance(res, asyncio.CancelledError) for res in consumer_cancellations))
-
-    # print(f"Total jobs: {shared_state_job_ids['total']}")
-    # print(f"Total expected jobs time (naive): {shared_state_job_times['total']:.2f}s")
+    print(f"Total jobs: {shared_state_job_ids['total']}")
+    print(f"Total expected jobs time (naive): {shared_state_job_times['total']:.2f}s")
 
     # ============ Example 9 - async iterables and async iterators ============
 
@@ -908,5 +933,9 @@ async def main() -> None:
     #         print("Fetching all todos cancelled")
 
 
+def main() -> None:
+    asyncio.run(amain())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

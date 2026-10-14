@@ -22,20 +22,26 @@ classifiers = ["Programming Language :: Python :: 3.12", "Operating System :: OS
 
 [project.scripts]
 exp-track-cli = "py_playground.expense_tracker.main:main"
+async-cli = "py_playground.other.asynchronous:main"
 enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
 gens-cli = "py_playground.other.generics:main"
 logdate-cli = "py_playground.other.loggingdates:main"
+multiproc-cli = "py_playground.other.multiproc:main"
+multithr-cli = "py_playground.other.multithr:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
 runval-cli = "py_playground.other.runtimevalidation:main"
 
 [project.gui-scripts]
 # make each main Python program available as a short command (just like above) but prevent the terminal pop-up on Windows
 exp-track-gui = "py_playground.expense_tracker.main:main"
+async-gui = "py_playground.other.asynchronous:main"
 enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
 gens-gui = "py_playground.other.generics:main"
-logdate-cli = "py_playground.other.loggingdates:main"
+logdate-gui = "py_playground.other.loggingdates:main"
+multiproc-gui = "py_playground.other.multiproc:main"
+multithr-gui = "py_playground.other.multithr:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
 runval-gui = "py_playground.other.runtimevalidation:main"
 

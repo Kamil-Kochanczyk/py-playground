@@ -10,6 +10,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.14.3",
+    "numpy>=2.5.4",
     "pydantic-settings>=2.15.0",
     "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
@@ -25,11 +26,13 @@ exp-track-cli = "py_playground.expense_tracker.main:main"
 async-cli = "py_playground.other.asynchronous:main"
 enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
-gens-cli = "py_playground.other.generics:main"
+generics-cli = "py_playground.other.generics:main"
+gens-cli = "py_playground.other.gens:main"
 logdate-cli = "py_playground.other.loggingdates:main"
 multiproc-cli = "py_playground.other.multiproc:main"
 multithr-cli = "py_playground.other.multithr:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
+paradigms-cli = "py_playground.other.paradigms:main"
 runval-cli = "py_playground.other.runtimevalidation:main"
 
 [project.gui-scripts]
@@ -38,11 +41,13 @@ exp-track-gui = "py_playground.expense_tracker.main:main"
 async-gui = "py_playground.other.asynchronous:main"
 enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
-gens-gui = "py_playground.other.generics:main"
+generics-gui = "py_playground.other.generics:main"
+gens-gui = "py_playground.other.gens:main"
 logdate-gui = "py_playground.other.loggingdates:main"
 multiproc-gui = "py_playground.other.multiproc:main"
 multithr-gui = "py_playground.other.multithr:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
+paradigms-gui = "py_playground.other.paradigms:main"
 runval-gui = "py_playground.other.runtimevalidation:main"
 
 [project.urls]
@@ -54,7 +59,6 @@ Changelog = "https://github.com/Kamil-Kochanczyk/py-playground/releases "
 
 [project.optional-dependencies]
 ds = [
-    "numpy>=2.5.2",
     "pandas>=3.0.5",
 ]
 plots = [

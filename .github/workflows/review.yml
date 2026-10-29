@@ -49,14 +49,15 @@ jobs:
         run: uv run mypy .
 
   test:
-    name: Test
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     # needs:
       # - review
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     # matrix strategy lets you use variables in a single job definition to automatically create multiple job runs that are based on the combinations of the variables
     # for example, you can use a matrix strategy to test your code in multiple versions of a language or on multiple operating systems
     strategy:
       matrix:
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: ["3.12", "3.13", "3.14"]
 
     steps:
@@ -82,14 +83,57 @@ jobs:
 
       - name: Test with Pytest
         run: |
-          uv run pytest --cov=src/py_playground/expense_tracker --cov-report=html --cov-branch
+          uv run pytest --cov=src/py_playground/expense_tracker --cov-report= --cov-branch
+        env:
+          COVERAGE_FILE: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
 
-      # prevent discarding the coverage report when the job ends
-      # upload it as an artifact for later inspection
-      - name: Upload coverage report
-        if: always() && matrix.python-version == '3.12'
+      - name: Upload raw coverage data
         uses: actions/upload-artifact@v7.0.0
         with:
-          name: coverage-html-${{ matrix.python-version }}
+          name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
+          path: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
+          if-no-files-found: warn
+          include-hidden-files: true
+
+  combine:
+    name: Combine Coverage Results
+    needs:
+      - test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+
+      - name: Install the project
+        run: uv sync --python "3.12" --locked --all-groups --all-extras
+      
+      - name: Download all coverage data
+        uses: actions/download-artifact@v8.0.1
+        with:
+          pattern: coverage-*
+          path: .coverage_data
+          merge-multiple: true
+      
+      - name: Combine And Generate Report
+        run: |
+          uv run coverage combine .coverage_data
+          uv run coverage report --show-missing
+          uv run coverage html
+      
+      - name: Upload final coverage report
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: coverage-html-full
           path: htmlcov/
           if-no-files-found: warn

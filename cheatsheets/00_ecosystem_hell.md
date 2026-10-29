@@ -45,6 +45,8 @@ Other tools which are useful to know/understand/remember:
 - **Twine** - tool that publishes packages to PyPI
 - **Flit** - tool that publishes packages to PyPI
 - **pyenv** - tool for managing Python versions in your projects
+- **tox** - tool that lets you execute various programs and commands in different environments, e.g. running the same tests locally in parallel for multiple Python versions
+  - alternative is **nox**
 
 # Glossary
 - **PyPA** - Python Packagin Authority, a working group that maintains core software tools and standards for packaging and distributing Python code

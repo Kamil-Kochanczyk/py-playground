@@ -233,7 +233,7 @@ args = [
 [tool.poe.tasks.test]
 # CLI task - single CLI command, extra arguments automatically forwarded to the command
 help = "Run tests using pytest"
-cmd = "pytest --cov=src/py_playground/expense_tracker --cov-report=html --cov-branch"
+cmd = "pytest --cov --cov-report=html --cov-branch"
 
 [tool.poe.tasks.clean]
 # shell task - multi-line command like in Linux shell
@@ -291,6 +291,8 @@ exclude = ["test", "tests"]
 # enable_error_code = ["ignore-without-code"]
 
 [tool.coverage.run]
+source = ["src/py_playground/expense_tracker"]
+relative_files = true
 omit = ["*/__init__.py"]
 
 [tool.coverage.report]

@@ -15,10 +15,10 @@ sys.path.insert(0, os.path.abspath("../src/py_playground"))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Py Playground"
+project = "PyPlayground"
 copyright = "2026, Kamil Kochańczyk"
 author = "Kamil Kochańczyk"
-release = "0.0.1"
+release = "0.4.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

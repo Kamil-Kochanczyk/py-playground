@@ -219,22 +219,24 @@ markers = [
 
 [tool.poe.tasks]
 # very simple tasks
-sync-all = "uv sync --all-groups"
+sync-all = "uv sync --all-groups --all-extras"
 lock-upgrade = "uv lock --upgrade"
 fix-diff = "ruff check . --fix --diff"
 format-diff = "ruff format . --diff"
+cov-erase = "uv run coverage erase"
+pytest-cov-doctest = "pytest --cov --cov-report=html --cov-branch --doctest-modules"
 
 [tool.poe.tasks.typecheck]
-# CLI task - with custom option for defining a path
+# CLI task - with custom option for defining a path, extra arguments automatically forwarded to the command
 cmd = "mypy ${path}"
 args = [
     { name="path", options=["--path", "-p"], default="." }
 ]
 
 [tool.poe.tasks.test]
-# CLI task - single CLI command, extra arguments automatically forwarded to the command
-help = "Run tests using pytest"
-cmd = "pytest --cov --cov-report=html --cov-branch"
+# sequence task - multiple tasks running sequentially in order
+help = "Run tests using pytest with fresh coverage report, also run doctests"
+sequence = ["cov-erase", "pytest-cov-doctest"]
 
 [tool.poe.tasks.clean]
 # shell task - multi-line command like in Linux shell
@@ -248,7 +250,6 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 """
 
 [tool.poe.tasks.update]
-# sequence task - multiple tasks running sequentially in order
 help = "Update lock file and then update all dependency groups (but skip extra/optional ones)"
 sequence = ["lock-upgrade", "sync-all"]
 
@@ -276,6 +277,10 @@ rm sphinx_docs_test/api_reference/modules.rst
 [tool.poe.tasks.sphserve]
 help = "Sphinx: start live server"
 cmd = "sphinx-autobuild sphinx_docs_test sphinx_docs_test/_build"
+
+[tool.poe.tasks.dodoctest]
+help = "Perform doctests on a specific Python script, script must be specified via its path"
+cmd = "uv run python -m doctest -v"
 
 [tool.mypy]
 python_version = "3.12"

@@ -15,6 +15,15 @@ def generate_next_id(expenses: list[Expense]) -> ExpenseID:
     Returns:
         The next unused expense ID. Returns 0 when the list is empty.
 
+    Examples:
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import generate_next_id
+        >>> generate_next_id([])
+        0
+        >>> expenses = [Expense.dummy_expense(exp_id=2), Expense.dummy_expense(exp_id=5)]
+        >>> generate_next_id(expenses)
+        6
+
     """
     if len(expenses) == 0:
         return 0
@@ -41,6 +50,14 @@ def add_expense(expenses: list[Expense], expense: Expense) -> None:
         expenses: The list of expenses to update.
         expense: The expense to add.
 
+    Examples:
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import add_expense
+        >>> expenses = []
+        >>> add_expense(expenses, Expense.dummy_expense(exp_id=1))
+        >>> len(expenses)
+        1
+
     """
     expenses.append(expense)
 
@@ -54,6 +71,15 @@ def delete_expense(expenses: list[Expense], id_to_delete: ExpenseID) -> bool:
 
     Returns:
         True if an expense was removed; otherwise False.
+
+    Examples:
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import delete_expense
+        >>> expenses = [Expense.dummy_expense(exp_id=1)]
+        >>> delete_expense(expenses, 1)
+        True
+        >>> delete_expense(expenses, 2)
+        False
 
     """
     for expense in expenses:
@@ -73,6 +99,15 @@ def get_expense(expenses: list[Expense], id_to_get: ExpenseID) -> Expense | None
     Returns:
         The matching Expense instance, or None if no match exists.
 
+    Examples:
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import get_expense
+        >>> expenses = [Expense.dummy_expense(exp_id=1)]
+        >>> get_expense(expenses, 1).expense_id
+        1
+        >>> get_expense(expenses, 2) is None
+        True
+
     """
     for expense in expenses:
         if expense.expense_id == id_to_get:
@@ -90,6 +125,16 @@ def filter_by_category(expenses: list[Expense], category: Category) -> list[Expe
     Returns:
         A list containing only the expenses whose category equals `category`.
 
+    Examples:
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import filter_by_category
+        >>> expenses = [
+        ...     Expense.dummy_expense(exp_id=1, cat="food"),
+        ...     Expense.dummy_expense(exp_id=2, cat="transport"),
+        ... ]
+        >>> [expense.expense_id for expense in filter_by_category(expenses, "food")]
+        [1]
+
     """
     return [expense for expense in expenses if expense.category == category]
 
@@ -102,6 +147,17 @@ def calculate_total(expenses: list[Expense]) -> Decimal | Literal[0]:
 
     Returns:
         The combined amount of all expenses.
+
+    Examples:
+        >>> from decimal import Decimal
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import calculate_total
+        >>> expenses = [
+        ...     Expense.dummy_expense(amt=Decimal("12.50")),
+        ...     Expense.dummy_expense(amt=Decimal("3.00")),
+        ... ]
+        >>> calculate_total(expenses)
+        Decimal('15.50')
 
     """
     return sum(expense.amount for expense in expenses)
@@ -116,6 +172,17 @@ def calculate_category_total(expenses: list[Expense], category: Category) -> Dec
 
     Returns:
         The combined amount for expenses in the requested category.
+
+    Examples:
+        >>> from decimal import Decimal
+        >>> from py_playground.expense_tracker.expense import Expense
+        >>> from py_playground.expense_tracker.operations import calculate_category_total
+        >>> expenses = [
+        ...     Expense.dummy_expense(amt=Decimal("12.50"), cat="food"),
+        ...     Expense.dummy_expense(amt=Decimal("3.00"), cat="transport"),
+        ... ]
+        >>> calculate_category_total(expenses, "food")
+        Decimal('12.50')
 
     """
     return calculate_total(filter_by_category(expenses, category))

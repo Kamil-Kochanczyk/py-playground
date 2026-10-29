@@ -88,7 +88,7 @@ jobs:
           COVERAGE_FILE: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
 
       - name: Upload raw coverage data
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-${{ matrix.os }}-${{ matrix.python-version }}
           path: .coverage.${{ matrix.os }}.${{ matrix.python-version }}
@@ -132,7 +132,7 @@ jobs:
           uv run coverage html
       
       - name: Upload final coverage report
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-html-full
           path: htmlcov/

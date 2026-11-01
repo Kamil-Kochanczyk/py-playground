@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import random
 from abc import abstractmethod
 from dataclasses import asdict, astuple, dataclass, field
 from functools import lru_cache
-from random import randint
 from typing import (
     Annotated,
     Any,
@@ -37,6 +37,9 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# region Example 1 - Intro
+
+
 # add metadata without changing the interpretation of static type checkers
 # metadata can be used at runtime for example to enforce validation
 Speed = Annotated[float, "m/s"]
@@ -48,6 +51,12 @@ def check_speed(v: Speed, s: Distance, t: Time) -> bool:
     if t == 0:
         raise ZeroDivisionError("Time cannot be 0")
     return v == s / t
+
+
+# endregion
+
+
+# region Example 2 - dataclass
 
 
 # protocol for anything comparable
@@ -75,6 +84,12 @@ class Top3[CT]:
     honorable_mentions: list[CT] = field(default_factory=list)
 
 
+# endregion
+
+
+# region Example 3 - NamedTuple
+
+
 # another container for related values is NamedTuple
 # it is just a tuple (immutable tuple) but it additionaly gives you access to obj.property syntax
 # it even allows you to define custom properties and methods
@@ -87,6 +102,16 @@ class WhatIsIt(NamedTuple):
         return f"{self.goh}; {self.hoh}; {self.dl}"
 
 
+# endregion
+
+
+# region Example 4 - Pydantic, before & after validators, for fields & for models
+
+
+# validators allow to perform custom, additional operations on Pydantic models
+# they can be used e.g. to check the data types, clean the data, specify additional conditions for the data to be satisfied, etc.
+
+
 # Pydantic has two contexts when it comes to interpreting "Before" and "After" validators: field context and model context
 # in field context you validate a single field of an instance
 # in model context you validate multiple fields to ensure their mutual relationship are as desired
@@ -96,10 +121,14 @@ class WhatIsIt(NamedTuple):
 # "Before" also allows you to transform the data while still having it in its raw form
 # you can specify field validators in two ways: using Annotated and using decorators
 # model validators are specified using decarators
+
+
 # note: in Pydantic, just like in dataclasses,
 # it is a good practice to use Field() and default_factory for default values of mutable types, e.g. list/dict,
 # even though Pydantic helps you and creates a deepcopy if you use a mutable type as a default value of some attribute
-# Pydantic also has two contextx for defining custom serialization logic: field context and model context
+
+
+# note: Pydantic also has two contexts for defining custom serialization logic: field context and model context
 
 
 class Validators:
@@ -188,6 +217,28 @@ class Relationship(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=30)]
 
 
+# endregion
+
+
+# region Example 5 - Pydantic, validation & serialization aliases, field & model serializers
+
+
+# aliases are additional names
+# validation aliases allow the given field to be passed under different names to the Pydantic model
+# e.g. "email" field can have aliases such as "e-mail" or "E-Mail"
+# serialization alias allow the given field to be saved under different names when being dumped
+# e.g. "password" field can be saved as "pswd" in the dict/json representation
+
+
+# AliasChoice is a wrapper class for the OR operation on multiple possible aliases
+# AliasPath is a wrapper that can "dig" for fields nested deeply inside dict or json representations
+
+
+# serializer outputs the given Pydantic model as a dict or as a json according to some logic
+# field serializer can change the way a given field is serialized, e.g. "secret_key" can be serialized as "**********"
+# model serializer, on the other hand, operates on multiple fields, e.g. "secret_key" and "login" can be serialized as "login: **********"
+
+
 class AliasGenerators:
     @staticmethod
     def get_user_validation_aliases() -> dict[str, AliasChoices]:
@@ -226,7 +277,7 @@ class User(BaseModel):
             # serialization: choose randomly from predefined aliases
             serialization_alias=lambda field_name_str: (
                 AliasGenerators.get_user_serialization_aliases()[field_name_str][
-                    randint(
+                    random.randint(
                         0,
                         len(AliasGenerators.get_user_serialization_aliases()[field_name_str]) - 1,
                     )
@@ -273,6 +324,12 @@ class User(BaseModel):
     # endregion
 
 
+# endregion
+
+
+# region Example 6 - Pydantic, validating function calls
+
+
 # easy way to validate function calls with pydantic
 # validation has some performance cost, though, compared to the raw version
 @validate_call(validate_return=True)
@@ -280,6 +337,12 @@ def check_speed_pydantically(v: Speed, s: Distance, t: Time) -> bool:
     if t == 0:
         raise ZeroDivisionError("Time cannot be 0")
     return v == s / t
+
+
+# endregion
+
+
+# region Example 7 - Pydantic, env vars and secrets
 
 
 # for dealing with environment variables and secrets, use BaseSettings instead of BaseModel
@@ -351,14 +414,18 @@ class SettingsGetter:
         return MySecretSettings()  # type: ignore[]  # some params are not passed by keyword because they are read from the environment
 
 
+# endregion
+
+
 def main() -> None:
-    # Annotate
+
+    # Example 1 - Intro
     print(check_speed(1.0, 4.0, 2.0))
     print(get_args(Time), get_args(Time)[0], get_args(Time)[1:])
     print(get_type_hints(check_speed, include_extras=True))
     print()
 
-    # dataclass
+    # Example 2 - dataclass
     favourite_numbers = Top3(10, 8, 5, [42, 69, 520])
     # favourite_numbers.third = 6  # this assignment is caught as an error
     # favourite_numbers.honorable_mentions[0] = 6  # but this assignment is not caught
@@ -371,13 +438,13 @@ def main() -> None:
     print(astuple(favourite_numbers))
     print()
 
-    # NamedTuple
+    # Example 3 - NamedTuple
     whatisit = WhatIsIt("Done!", "Almost done!", "Long way to be done!")
     print(whatisit.goh, whatisit.hoh, whatisit.dl)
     print(whatisit.concat())
     print()
 
-    # Pydantic
+    # Example 4 - Pydantic, before & after validators, for fields & for models
 
     # ranking = Entity(entity_id=-1, name="")
     ranking = Entity(entity_id=0, name="Ranking   ")
@@ -390,6 +457,7 @@ def main() -> None:
     print(pypy, pypy.name, pypy.model_dump())
     pypy_json = Entity.model_validate_json(data_json)
     print(pypy_json, pypy_json.name, pypy_json.model_dump_json())
+
     print()
 
     similar = Relationship(
@@ -400,6 +468,8 @@ def main() -> None:
     )
     print(similar.model_json_schema())
     print()
+
+    # Example 5 - Pydantic, validation & serialization aliases, field & model serializers
 
     user = User(username="Kamil", email="kamil@gmail.com", key=SecretStr("limaK"))  # type: ignore[]  # mypy doesn't understand pydantic's alias :(
     print(user, user.model_dump(), user.model_dump_json())
@@ -416,23 +486,28 @@ def main() -> None:
 
     serialized_user = User(name="Kamil", email="kamil@gmail.com", key=SecretStr("limaK"), status="Admin")
     print(serialized_user.model_dump(), serialized_user.model_dump_json())
-
-    # for simpler or primitive types you can also use TypeAdapter
-    # this way you don't have to create BaseModel classes
-    int_list_adapter = TypeAdapter(list[int])
-    print(int_list_adapter.validate_python((0, 1, 2)))
-    print(int_list_adapter.validate_json('["6", "7"]'))
     print()
 
+    # Example 6 - Pydantic, validating function calls
     print(check_speed(1.0, 4.0, 2.0))
     print()
 
+    # Example 7 - Pydantic, env vars and secrets
     my_settings = SettingsGetter.get_my_settings()
     print(my_settings.model_dump_json(by_alias=True))
     my_dotenv_settings = SettingsGetter.get_my_dotenv_settings()
     print(my_dotenv_settings.model_dump_json(by_alias=False))
     my_secret_settings = SettingsGetter.get_my_secret_settings()
     print(my_secret_settings.model_dump_json(by_alias=False))
+    print()
+
+    # Bonus - Pydantic, TypeAdapter
+    # for simpler or primitive types you can also use TypeAdapter
+    # this way you don't have to create BaseModel classes
+    int_list_adapter = TypeAdapter(list[int])
+    print(int_list_adapter.validate_python((0, 1, 2)))
+    print(int_list_adapter.validate_json('["6", "7"]'))
+    print()
 
 
 if __name__ == "__main__":

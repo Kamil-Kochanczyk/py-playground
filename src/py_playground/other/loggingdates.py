@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import logging
 import zoneinfo
 from logging.handlers import RotatingFileHandler
@@ -51,18 +51,18 @@ def main() -> None:
     logger.error("Error :)")
     logger.critical("Critical :)")
 
-    logger.warning(datetime.datetime.now(tz=datetime.UTC))
-    logger.warning(datetime.datetime(2026, 9, 8, 18, 16, 59, tzinfo=datetime.UTC).strftime("%H:%M:%S   %Y:%m:%d"))
-    logger.warning(datetime.datetime.strptime("06-06-2006 06:06:06", "%d-%m-%Y %H:%M:%S").astimezone(datetime.UTC).year)
-    logger.warning(datetime.date(2002, 5, 4))
-    logger.warning(datetime.time(0, 40, 59))
+    logger.warning(dt.datetime.now(tz=dt.UTC))
+    logger.warning(dt.datetime(2026, 9, 8, 18, 16, 59, tzinfo=dt.UTC).strftime("%H:%M:%S   %Y:%m:%d"))
+    logger.warning(dt.datetime.strptime("06-06-2006 06:06:06", "%d-%m-%Y %H:%M:%S").astimezone(dt.UTC).year)
+    logger.warning(dt.date(2002, 5, 4))
+    logger.warning(dt.time(0, 40, 59))
 
-    now = datetime.datetime.now(tz=datetime.UTC)
-    birth = datetime.datetime(2002, 5, 4, 0, 40, 59, tzinfo=datetime.UTC)
+    now = dt.datetime.now(tz=dt.UTC)
+    birth = dt.datetime(2002, 5, 4, 0, 40, 59, tzinfo=dt.UTC)
     datetime_since_birth = now - birth
     logger.warning("I was born %d days ago", datetime_since_birth.days)
 
-    tomorrow = datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(days=1, seconds=60)
+    tomorrow = dt.datetime.now(tz=dt.UTC) + dt.timedelta(days=1, seconds=60)
     logger.warning(tomorrow)
 
     deadline = tomorrow

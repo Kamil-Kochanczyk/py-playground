@@ -1,6 +1,6 @@
 """Persistence helpers for loading and saving expenses as JSON."""
 
-import datetime
+import datetime as dt
 import decimal
 import json
 from pathlib import Path
@@ -42,7 +42,7 @@ def expense_from_dict(data: ExpenseDict) -> Expense:
         amount=decimal.Decimal(data["amount"]),
         category=data["category"],
         description=data["description"],
-        date=datetime.datetime.fromisoformat(data["date"]),
+        date=dt.datetime.fromisoformat(data["date"]),
     )
 
 

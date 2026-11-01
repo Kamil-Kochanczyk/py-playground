@@ -1,6 +1,6 @@
 """Command-line entry points for the expense tracker application."""
 
-import datetime
+import datetime as dt
 import decimal
 import time
 from pathlib import Path
@@ -25,7 +25,7 @@ def handle_add_expense(expenses: list[Expense]) -> None:
         new_category = Category(input("Category: "))
         new_description = Description(input("Description: "))
         year, month, day = input("Date (yyyy/mm/dd): ").split("/")
-        new_date = datetime.datetime(int(year), int(month), int(day), tzinfo=datetime.UTC)
+        new_date = dt.datetime(int(year), int(month), int(day), tzinfo=dt.UTC)
         new_expense = Expense(
             expense_id=new_id, amount=new_amount, category=new_category, description=new_description, date=new_date
         )

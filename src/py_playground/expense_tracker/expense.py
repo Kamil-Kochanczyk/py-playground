@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import datetime
+import datetime as dt
 import decimal
 from typing import NewType, NotRequired, TypedDict
 
@@ -32,11 +32,11 @@ class Expense(BaseModel):
     amount: decimal.Decimal
     category: Category
     description: Description
-    date: datetime.datetime
+    date: dt.datetime
 
     def _members(
         self,
-    ) -> tuple[ExpenseID, decimal.Decimal, Category, Description, datetime.datetime]:
+    ) -> tuple[ExpenseID, decimal.Decimal, Category, Description, dt.datetime]:
         """Return the fields used to compare two expense instances.
 
         Returns:
@@ -70,7 +70,7 @@ class Expense(BaseModel):
         amt: decimal.Decimal = decimal.Decimal("0.0"),
         cat: Category = Category(""),
         des: Description = Description(""),
-        dattim: datetime.datetime | None = None,
+        dattim: dt.datetime | None = None,
     ) -> Expense:
         """Create a placeholder Expense instance with default values.
 
@@ -87,7 +87,7 @@ class Expense(BaseModel):
 
         """
         if dattim is None:
-            dattim = datetime.datetime.min.replace(tzinfo=datetime.UTC)
+            dattim = dt.datetime.min.replace(tzinfo=dt.UTC)
 
         return cls(
             expense_id=exp_id,

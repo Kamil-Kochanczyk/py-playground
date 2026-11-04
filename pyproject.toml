@@ -1,6 +1,6 @@
 [project]
 name = "py-playground-1086kamil"
-version = "0.5.0"
+version = "1.0.0"
 keywords = ["learning", "tutorial", "educational"]
 description = "Project created to learn various concepts and have fun with Python."
 readme = "README.md"

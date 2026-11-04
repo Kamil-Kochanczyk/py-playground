@@ -2178,7 +2178,7 @@ wheels = [
 
 [[package]]
 name = "py-playground-1086kamil"
-version = "0.5.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

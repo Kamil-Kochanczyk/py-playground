@@ -10,22 +10,32 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.14.3",
+    "colorama>=0.4.6",
     "numpy>=2.5.4",
     "pydantic-settings>=2.15.0",
     "pydantic[email]>=2.13.5",
     "python-dotenv>=1.2.3",
+    "requests>=2.34.2",
+    "rich>=15.0.0",
     "tzdata>=2026.3",
 ]
 license = "MIT"
 license-files = ["LICENSE", "AUTHORS"]
-# classifiers = ["Programming Language :: Python :: 3.12", "Private :: Do Not Upload"]
-classifiers = ["Programming Language :: Python :: 3.12", "Operating System :: OS Independent"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Operating System :: OS Independent"
+]
 
 [project.scripts]
 exp-track-cli = "py_playground.expense_tracker.main:main"
 async-cli = "py_playground.other.asynchronous:main"
 enumfun-cli = "py_playground.other.enumfun:main"
 envvars-cli = "py_playground.other.envvars:main"
+filesndirs-cli = "py_playground.other.filesndirs:main"
+freshtools-cli = "py_playground.other.freshtools:main"
 generics-cli = "py_playground.other.generics:main"
 gens-cli = "py_playground.other.gens:main"
 logdate-cli = "py_playground.other.loggingdates:main"
@@ -33,7 +43,9 @@ multiproc-cli = "py_playground.other.multiproc:main"
 multithr-cli = "py_playground.other.multithr:main"
 nonlocal-cli = "py_playground.other.nonlocalexample:main"
 paradigms-cli = "py_playground.other.paradigms:main"
+prettyprints-cli = "py_playground.other.prettyprints:main"
 runval-cli = "py_playground.other.runtimevalidation:main"
+utiltools-cli = "py_playground.other.utiltools:main"
 
 [project.gui-scripts]
 # make each main Python program available as a short command (just like above) but prevent the terminal pop-up on Windows
@@ -41,6 +53,8 @@ exp-track-gui = "py_playground.expense_tracker.main:main"
 async-gui = "py_playground.other.asynchronous:main"
 enumfun-gui = "py_playground.other.enumfun:main"
 envvars-gui = "py_playground.other.envvars:main"
+filesndirs-gui = "py_playground.other.filesndirs:main"
+freshtools-gui = "py_playground.other.freshtools:main"
 generics-gui = "py_playground.other.generics:main"
 gens-gui = "py_playground.other.gens:main"
 logdate-gui = "py_playground.other.loggingdates:main"
@@ -48,7 +62,9 @@ multiproc-gui = "py_playground.other.multiproc:main"
 multithr-gui = "py_playground.other.multithr:main"
 nonlocal-gui = "py_playground.other.nonlocalexample:main"
 paradigms-gui = "py_playground.other.paradigms:main"
+prettyprints-gui = "py_playground.other.prettyprints:main"
 runval-gui = "py_playground.other.runtimevalidation:main"
+utiltools-gui = "py_playground.other.utiltools:main"
 
 [project.urls]
 Homepage = "https://github.com/Kamil-Kochanczyk/py-playground"
@@ -91,6 +107,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.10",
+    "types-colorama>=0.4.15.20260508",
 ]
 docs = [
     "mkdocs>=1.6.1,<2.0.0",
@@ -103,6 +120,7 @@ docs = [
 ]
 
 [tool.ruff]
+target-version = "py315"
 line-length = 120
 extend-exclude = ["cheatsheets", "sphinx_docs_test"]
 
@@ -283,7 +301,7 @@ help = "Perform doctests on a specific Python script, script must be specified v
 cmd = "uv run python -m doctest -v"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.15"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

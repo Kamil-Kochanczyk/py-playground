@@ -39,3 +39,6 @@ src/py_playground/expense_tracker/data
 # Node.js
 **/node_modules/
 **/.npm
+
+# Other
+**/*tmp*

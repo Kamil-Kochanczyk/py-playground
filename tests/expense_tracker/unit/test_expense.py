@@ -2,15 +2,16 @@ import datetime
 import decimal
 
 import pytest
+from pydantic import ValidationError
 
 from py_playground.expense_tracker.expense import Expense
 
 
 def test_expense_not_valid_amount():
-    with pytest.raises(decimal.InvalidOperation, match="ConversionSyntax"):
+    with pytest.raises(ValidationError):
         Expense(
             expense_id=0,
-            amount=decimal.Decimal("abc"),
+            amount="abc",
             category="",
             description="",
             date=datetime.datetime.min.replace(tzinfo=datetime.UTC),

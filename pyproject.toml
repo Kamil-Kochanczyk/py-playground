@@ -268,7 +268,7 @@ find . -type d -name "__pycache__" -exec rm -rf {} +
 """
 
 [tool.poe.tasks.update]
-help = "Update lock file and then update all dependency groups (but skip extra/optional ones)"
+help = "Update lock file and then update all dependency groups"
 sequence = ["lock-upgrade", "sync-all"]
 
 [tool.poe.tasks.reviewcode]

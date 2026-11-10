@@ -1785,6 +1785,7 @@ docker run -d --rm \
 >       - `--exit-on-error`: tells `pg_restore` to abort and exit immediately if any error occurs during restoration, rather than logging the error and continuing
 >       - `--no-owner`: prevents `pg_restore` from executing commands that assign object ownership to set the ownership of objects to match the original database; this is vital when restoring into a different server or under a different database user, preventing permission errors
 >       - `--no-acl`: prevents the restoration of access control lists (GRANT/REVOKE statements), meaning default permissions of the target database user will apply instead of the original backup's permissions
+> 5. In real-world scenarios, keep the backup files in a safe place.
 
 # Secrets
 

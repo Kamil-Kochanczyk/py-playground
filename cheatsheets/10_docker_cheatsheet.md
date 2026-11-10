@@ -1764,6 +1764,28 @@ docker run -d --rm \
   postgres:15.1-alpine -c 'config_file=/etc/postgresql/postgresql.conf'
 ```
 
+> [!NOTE]
+> Here's a step by step guide on how to create a backup of a postgres database and how to test it:
+>
+> 1. `docker exec -i <postgres_container_id> pg_dump -U postgres -F c -b -v <my_database_name> > <my_database_backup_file>.dump`
+>       - makes a backup file by redirecting it from inside the postgres container into the host machine's current directory
+>       - `pg_dump`: the PostgreSQL utility used for backing up a database into a script or archive file
+>       - `-U postgres`: specifies the database username to connect as (here, `postgres`)
+>       - `-F c`: specifies the output file format (`F`); the `c` stands for custom archive format; this format is compressed, allows selective restoration of specific tables using `pg_restore`, and is the most flexible format for backups
+>       - `-b`: includes large objects (`BLOBs`) in the dump (useful if your database stores binary files, images, or documents inside large object tables)
+>       - `-v`: enables verbose mode, printing detailed progress messages to the console as the backup runs
+> 2. `docker exec -i <postgres_container_id> pg_restore -f /dev/null < <my_database_backup_file>.dump`
+>       - pre-tests the backup file by feeding it into the container and targeting `/dev/null`, if the file is corrupted the error message should be printed
+>       - `pg_restore`: used to parse custom-format archives created by `pg_dump` and apply them to a database
+>       - `-f /dev/null`: sets the output file (`-f`) to `/dev/null` (the Linux "black hole"); because no actual database name is specified, this command runs through the entire `.dump` file and processes it without writing anything to a database; it's a clever trick to verify that the backup file is valid and uncorrupted without modifying any live data; targetting `/dev/null` with `>` or `<` (like in this command) suppresses stdout but not stderr
+> 3. create another postgres container with an empty database inside it
+> 4. `docker exec -i <another_postgres_container_id> pg_restore -U postgres -d <newly_created_database_name> --exit-on-error --no-owner --no-acl < <my_database_backup_file>.dump`
+>       - feeds the backup file into the newly created container, if everything worked, the tables from the previous backed up container should be available inside the new container
+>       - `-d`: specifies the target database name (`-d`) to restore into
+>       - `--exit-on-error`: tells `pg_restore` to abort and exit immediately if any error occurs during restoration, rather than logging the error and continuing
+>       - `--no-owner`: prevents `pg_restore` from executing commands that assign object ownership to set the ownership of objects to match the original database; this is vital when restoring into a different server or under a different database user, preventing permission errors
+>       - `--no-acl`: prevents the restoration of access control lists (GRANT/REVOKE statements), meaning default permissions of the target database user will apply instead of the original backup's permissions
+
 # Secrets
 
 ## Overview
